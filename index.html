@@ -26,6 +26,9 @@
             <p class="text-gray-400 mt-2">Powered by Strava</p>
         </header>
 
+        <!-- Notification Area -->
+        <div id="notification" class="hidden mb-6 p-4 rounded-md text-center"></div>
+
         <main class="bg-gray-800 rounded-lg shadow-xl p-6">
             <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
                 <h2 class="text-2xl font-semibold">Leaderboard</h2>
@@ -43,8 +46,11 @@
             </div>
         </main>
         
-        <footer class="text-center mt-8 text-gray-500 text-sm">
-            <p>Scores updated daily.</p>
+        <footer class="text-center mt-8 text-gray-500">
+            <button id="add-user-btn" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                Add Me to the Scoreboard
+            </button>
+            <p class="text-sm mt-4">Scores updated daily.</p>
         </footer>
     </div>
 
@@ -52,33 +58,58 @@
         document.addEventListener('DOMContentLoaded', () => {
             const leaderboardContainer = document.getElementById('leaderboard-container');
             const lastUpdatedSpan = document.getElementById('last-updated');
+            const addUserBtn = document.getElementById('add-user-btn');
+            const notification = document.getElementById('notification');
 
-            // Use a cache-busting parameter to ensure we get the latest file
+            // --- Handle Notifications from Redirect ---
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('success')) {
+                notification.textContent = 'Success! A request has been sent to add you. You will appear on the scoreboard after the next daily update.';
+                notification.className = 'block mb-6 p-4 rounded-md text-center bg-green-500 text-white';
+            } else if (urlParams.has('error')) {
+                notification.textContent = 'Authorization failed. Please try again.';
+                notification.className = 'block mb-6 p-4 rounded-md text-center bg-red-500 text-white';
+            }
+            // Clean up URL
+            if(window.history.pushState){
+                const newURL = new URL(window.location.href);
+                newURL.search = '';
+                window.history.pushState({ path: newURL.href }, '', newURL.href);
+            }
+
+            // --- "Add User" Button Logic ---
+            addUserBtn.addEventListener('click', () => {
+                // IMPORTANT: Replace with your actual Strava Client ID and Vercel URL
+                const stravaClientId = 'YOUR_STRAVA_CLIENT_ID';
+                const redirectUri = 'YOUR_VERCEL_FUNCTION_URL'; // e.g., https://your-project.vercel.app/api/strava_auth
+                
+                if (stravaClientId === 'YOUR_STRAVA_CLIENT_ID' || redirectUri === 'YOUR_VERCEL_FUNCTION_URL') {
+                    alert('Configuration needed: Please ask the repository owner to set the Strava Client ID and Vercel URL in index.html.');
+                    return;
+                }
+
+                const scope = 'read,activity:read';
+                const stravaAuthUrl = `https://www.strava.com/oauth/authorize?client_id=${stravaClientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=force&scope=${scope}`;
+                window.location.href = stravaAuthUrl;
+            });
+
+            // --- Fetch and Display Scores ---
             fetch(`scores.json?t=${new Date().getTime()}`)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     return response.json();
                 })
                 .then(data => {
-                    // Format the date nicely
-                    lastUpdatedSpan.textContent = new Date(data.lastUpdated).toLocaleString([], {
-                        dateStyle: 'medium',
-                        timeStyle: 'short'
-                    });
+                    lastUpdatedSpan.textContent = new Date(data.lastUpdated).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+                    leaderboardContainer.innerHTML = ''; 
                     
-                    leaderboardContainer.innerHTML = ''; // Clear the loading message
-
                     if (!data.leaderboard || data.leaderboard.length === 0) {
-                        leaderboardContainer.innerHTML = '<p class="text-center text-gray-400">No scores to display yet. Check back tomorrow!</p>';
+                        leaderboardContainer.innerHTML = '<p class="text-center text-gray-400">No scores yet. Add yourself to the competition!</p>';
                         return;
                     }
                     
-                    // Sort the leaderboard by score descending
                     data.leaderboard.sort((a, b) => b.score - a.score);
 
-                    // Create and display the scores with rankings
                     data.leaderboard.forEach((person, index) => {
                         const rank = index + 1;
                         const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
@@ -99,10 +130,11 @@
                 .catch(error => {
                     console.error("Error fetching scores:", error);
                     lastUpdatedSpan.textContent = 'N/A';
-                    leaderboardContainer.innerHTML = `<p class="text-center text-red-400">Could not load scores. The competition might not have started yet. Make sure a 'scores.json' file exists in the repository.</p>`;
+                    leaderboardContainer.innerHTML = `<p class="text-center text-red-400">Could not load scores. The competition might not have started yet.</p>`;
                 });
         });
     </script>
 </body>
 </html>
+
 

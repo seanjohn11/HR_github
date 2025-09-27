@@ -1,198 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-gray-900 text-white">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Fitness Challenge</title>
+    <title>Family Fitness Challenge</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .leaderboard-entry {
+            transition: all 0.2s ease-in-out;
+        }
+        .leaderboard-entry:hover {
+            transform: scale(1.02);
+        }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+<body class="flex items-center justify-center min-h-screen">
+
+    <div class="container mx-auto p-4 max-w-2xl">
         <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-900">Fitness Challenge Scoreboard</h1>
-            <p class="text-lg text-gray-600 mt-2">Track your daily heart rate scores.</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-cyan-400">Family Fitness Challenge</h1>
+            <p class="text-gray-400 mt-2">Powered by Strava</p>
         </header>
 
-        <!-- Main Scoreboard Sections -->
-        <main class="space-y-12">
-            <div id="loading" class="text-center">
-                <p class="text-lg">Loading latest scores...</p>
+        <!-- Success/Error Messages -->
+        <div id="message-container" class="mb-4">
+             <div id="success-message" class="hidden bg-green-900 border border-green-700 text-green-300 px-4 py-3 rounded-lg relative" role="alert">
+                <strong class="font-bold">Success!</strong>
+                <span class="block sm:inline"> Your authorization was successful. Your scores will appear soon!</span>
             </div>
-
-            <div id="error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
+             <div id="error-message-join" class="hidden bg-red-900 border border-red-700 text-red-300 px-4 py-3 rounded-lg relative" role="alert">
                 <strong class="font-bold">Error!</strong>
-                <span class="block sm:inline" id="error-message">Could not load scores. Please try again later.</span>
+                <span class="block sm:inline">There was a problem with your submission. Please check the password and try again.</span>
             </div>
-            
-            <div id="scoreboard-content" class="hidden space-y-12">
-                <section id="total-scores" class="bg-white p-6 rounded-xl shadow-md">
-                    <h2 class="text-2xl font-semibold mb-4 text-center">Overall Leaderboard</h2>
-                    <div id="total-scores-container" class="space-y-4"></div>
-                </section>
+        </div>
 
-                <section id="recent-activity" class="bg-white p-6 rounded-xl shadow-md">
-                    <h2 class="text-2xl font-semibold mb-4 text-center">Recent Daily Scores</h2>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-left">
-                            <thead class="border-b bg-gray-50">
-                                <tr id="recent-scores-header"></tr>
-                            </thead>
-                            <tbody id="recent-scores-body"></tbody>
-                        </table>
-                    </div>
-                </section>
+        <main class="bg-gray-800 rounded-lg shadow-xl p-6">
+            <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
+                <h2 class="text-2xl font-semibold">Leaderboard</h2>
+                <div class="text-right">
+                    <p class="text-sm text-gray-400">Last Updated:</p>
+                    <p id="last-updated" class="font-medium text-gray-300">Loading...</p>
+                </div>
+            </div>
+
+            <div id="leaderboard-container" class="space-y-4">
+                <!-- Scores will be loaded here -->
+                <div class="text-center text-gray-400">
+                    <p>Fetching the latest scores...</p>
+                </div>
             </div>
         </main>
         
-        <!-- Join Form Section -->
-        <section id="join-section" class="mt-12 text-center">
-            <!-- This button is now initially visible -->
-            <button id="show-join-form-button" class="w-full max-w-md mx-auto flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Click Here to Join
-            </button>
-            
-            <!-- The form is now hidden by default and has its own white background -->
-            <form id="join-form" class="hidden max-w-md mx-auto space-y-4 mt-4 text-left bg-white p-6 rounded-xl shadow-md">
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Join Password</label>
-                    <input type="password" id="password" name="password" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
+        <!-- Join Challenge Section -->
+        <div class="mt-8 text-center">
+            <button id="join-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Join Here</button>
+
+            <form id="join-form" class="hidden mt-6 bg-gray-800 p-6 rounded-lg shadow-xl max-w-md mx-auto text-left space-y-4">
                  <div>
-                    <label for="resting_hr" class="block text-sm font-medium text-gray-700">Resting Heart Rate</label>
-                    <input type="number" id="resting_hr" name="resting_hr" required placeholder="e.g., 60" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    <label for="join_password" class="block text-sm font-medium text-gray-300">Password</label>
+                    <input type="password" id="join_password" name="join_password" required class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-cyan-500 focus:border-cyan-500">
                 </div>
                 <div>
-                    <label for="max_hr" class="block text-sm font-medium text-gray-700">Max Heart Rate</label>
-                    <input type="number" id="max_hr" name="max_hr" required placeholder="e.g., 190" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    <label for="resting_hr" class="block text-sm font-medium text-gray-300">Resting Heart Rate</label>
+                    <input type="number" id="resting_hr" name="resting_hr" required class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-cyan-500 focus:border-cyan-500">
                 </div>
-                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Connect with Strava to Join
-                </button>
+                <div>
+                    <label for="max_hr" class="block text-sm font-medium text-gray-300">Max Heart Rate</label>
+                    <input type="number" id="max_hr" name="max_hr" required class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-cyan-500 focus:border-cyan-500">
+                </div>
+                <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Authorize with Strava</button>
             </form>
-        </section>
+        </div>
 
-        <!-- Status Message Section -->
-        <div id="status-message" class="mt-8 text-center"></div>
-
+        <footer class="text-center mt-8 text-gray-500 text-sm">
+            <p>Scores updated daily.</p>
+        </footer>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetchScores();
-            handleJoinForm();
-            displayStatusMessages();
-            setupJoinButton(); // Added function to handle the new button
+            setupDisplayScores();
+            setupJoinButton();
+            checkUrlStatus();
         });
 
-        // This new function shows the form when the button is clicked
+        function setupDisplayScores() {
+            const leaderboardContainer = document.getElementById('leaderboard-container');
+            const lastUpdatedSpan = document.getElementById('last-updated');
+
+            fetch(`scores.json?t=${new Date().getTime()}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    lastUpdatedSpan.textContent = new Date(data.lastUpdated).toLocaleString([], {
+                        dateStyle: 'medium',
+                        timeStyle: 'short'
+                    });
+                    
+                    leaderboardContainer.innerHTML = ''; 
+
+                    if (!data.leaderboard || data.leaderboard.length === 0) {
+                        leaderboardContainer.innerHTML = '<p class="text-center text-gray-400">No scores to display yet. Check back tomorrow!</p>';
+                        return;
+                    }
+                    
+                    data.leaderboard.sort((a, b) => b.score - a.score);
+
+                    data.leaderboard.forEach((person, index) => {
+                        const rank = index + 1;
+                        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+
+                        const entry = document.createElement('div');
+                        entry.className = 'leaderboard-entry bg-gray-700 p-4 rounded-lg flex items-center justify-between shadow-md';
+                        
+                        entry.innerHTML = `
+                            <div class="flex items-center">
+                                <span class="text-xl w-10 font-bold text-cyan-400">${medal}</span>
+                                <span class="font-semibold text-lg">${person.name}</span>
+                            </div>
+                            <span class="font-bold text-xl text-white">${person.score.toLocaleString()} pts</span>
+                        `;
+                        leaderboardContainer.appendChild(entry);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching scores:", error);
+                    lastUpdatedSpan.textContent = 'N/A';
+                    leaderboardContainer.innerHTML = `<p class="text-center text-red-400">Could not load scores. The competition might not have started yet. Make sure a 'scores.json' file exists in the repository.</p>`;
+                });
+        }
+
         function setupJoinButton() {
-            const showButton = document.getElementById('show-join-form-button');
+            const joinButton = document.getElementById('join-button');
             const joinForm = document.getElementById('join-form');
 
-            showButton.addEventListener('click', () => {
-                showButton.classList.add('hidden');
+            joinButton.addEventListener('click', () => {
+                joinButton.classList.add('hidden');
                 joinForm.classList.remove('hidden');
             });
-        }
 
-        function handleJoinForm() {
-            const form = document.getElementById('join-form');
-            form.addEventListener('submit', (event) => {
+            joinForm.addEventListener('submit', (event) => {
                 event.preventDefault();
-                const password = document.getElementById('password').value;
-                const restingHR = document.getElementById('resting_hr').value;
-                const maxHR = document.getElementById('max_hr').value;
 
-                // --- Replace these with your actual values ---
-                const stravaClientId = '169802'; 
-                const vercelFunctionUrl = 'https://hr-github.vercel.app/';
-                // ---------------------------------------------
+                const clientId = 'YOUR_STRAVA_CLIENT_ID'; // Replace with your Strava Client ID
+                const vercelUrl = 'YOUR_VERCEL_FUNCTION_URL'; // Replace with your Vercel Function URL
 
-                // Construct the state parameter to pass our data
-                const stateData = {
-                    p: password, // Use short keys to keep URL clean
-                    r: restingHR,
-                    m: maxHR
-                };
-                const stateString = btoa(JSON.stringify(stateData)); // Base64 encode the state
+                const password = document.getElementById('join_password').value;
+                const restingHr = document.getElementById('resting_hr').value;
+                const maxHr = document.getElementById('max_hr').value;
 
-                const redirectUri = vercelFunctionUrl;
-                const stravaAuthUrl = `https://www.strava.com/oauth/authorize?client_id=${stravaClientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=force&scope=activity:read_all&state=${stateString}`;
+                const redirectUri = encodeURIComponent(vercelUrl);
+                const scope = 'read,activity:read';
                 
-                window.location.href = stravaAuthUrl;
+                const state = btoa(JSON.stringify({
+                    password: password,
+                    resting_hr: restingHr,
+                    max_hr: maxHr
+                }));
+
+                const authUrl = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=force&scope=${scope}&state=${state}`;
+
+                window.location.href = authUrl;
             });
         }
 
-        async function fetchScores() {
-            try {
-                const response = await fetch('scores.json?cache_bust=' new Date().getTime());
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                displayScores(data);
-            } catch (error) {
-                console.error("Error fetching scores:", error);
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('error').style.display = 'block';
-            }
-        }
+        function checkUrlStatus() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
 
-        function displayScores(data) {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('scoreboard-content').classList.remove('hidden');
-
-            // Total Scores
-            const totalScoresContainer = document.getElementById('total-scores-container');
-            totalScoresContainer.innerHTML = '';
-            data.total_scores.forEach(player => {
-                totalScoresContainer.innerHTML += `
-                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <span class="font-medium text-lg">${player.name}</span>
-                        <span class="font-bold text-xl text-indigo-600">${player.score.toFixed(1)}</span>
-                    </div>`;
-            });
-
-            // Recent Scores
-            const recentHeader = document.getElementById('recent-scores-header');
-            const recentBody = document.getElementById('recent-scores-body');
-            recentHeader.innerHTML = '<th>Date</th>' + data.recent_scores.names.map(name => `<th>${name}</th>`).join('');
-            recentBody.innerHTML = '';
-            data.recent_scores.dates.forEach(dateEntry => {
-                let rowHtml = `<td class="py-2 px-3 border-b">${dateEntry.date}</td>`;
-                data.recent_scores.names.forEach(name => {
-                    const score = dateEntry.scores[name] || 0;
-                    rowHtml += `<td class="py-2 px-3 border-b">${score.toFixed(1)}</td>`;
-                });
-                recentBody.innerHTML += `<tr>${rowHtml}</tr>`;
-            });
-        }
-
-        function displayStatusMessages() {
-            const params = new URLSearchParams(window.location.search);
-            const statusMessageEl = document.getElementById('status-message');
-            
-            if (params.has('success')) {
-                statusMessageEl.innerHTML = `<div class="p-4 bg-green-100 text-green-800 rounded-lg"><strong>Success!</strong> Your request to join has been submitted. It may take a few minutes for the scoreboard to update.</div>`;
-            } else if (params.has('error')) {
-                const errorType = params.get('error');
-                let message = 'An unknown error occurred.';
-                if (errorType === 'auth_cancelled') {
-                    message = 'Authorization was cancelled. Please try again to join.';
-                } else if (errorType === 'wrong_password') {
-                    message = 'Incorrect password. Please try again.';
-                } else {
-                    message = 'Could not process your request to join. Please contact the administrator.';
-                }
-                statusMessageEl.innerHTML = `<div class="p-4 bg-red-100 text-red-700 rounded-lg"><strong>Error!</strong> ${message}</div>`;
+            if (status === 'success') {
+                document.getElementById('success-message').classList.remove('hidden');
+            } else if (status === 'error') {
+                document.getElementById('error-message-join').classList.remove('hidden');
             }
         }
     </script>
 </body>
 </html>
-
 
 

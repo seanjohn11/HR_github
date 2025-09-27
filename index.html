@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-900 text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Fitness Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .leaderboard-entry {
+            transition: all 0.2s ease-in-out;
+        }
+        .leaderboard-entry:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div class="container mx-auto p-4 max-w-2xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-cyan-400">Family Fitness Challenge</h1>
+            <p class="text-gray-400 mt-2">Powered by Strava</p>
+        </header>
+
+        <main class="bg-gray-800 rounded-lg shadow-xl p-6">
+            <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
+                <h2 class="text-2xl font-semibold">Leaderboard</h2>
+                <div class="text-right">
+                    <p class="text-sm text-gray-400">Last Updated:</p>
+                    <p id="last-updated" class="font-medium text-gray-300">Loading...</p>
+                </div>
+            </div>
+
+            <div id="leaderboard-container" class="space-y-4">
+                <!-- Scores will be loaded here -->
+                <div class="text-center text-gray-400">
+                    <p>Fetching the latest scores...</p>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="text-center mt-8 text-gray-500 text-sm">
+            <p>Scores updated daily.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const leaderboardContainer = document.getElementById('leaderboard-container');
+            const lastUpdatedSpan = document.getElementById('last-updated');
+
+            // Use a cache-busting parameter to ensure we get the latest file
+            fetch(`scores.json?t=${new Date().getTime()}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Format the date nicely
+                    lastUpdatedSpan.textContent = new Date(data.lastUpdated).toLocaleString([], {
+                        dateStyle: 'medium',
+                        timeStyle: 'short'
+                    });
+                    
+                    leaderboardContainer.innerHTML = ''; // Clear the loading message
+
+                    if (!data.leaderboard || data.leaderboard.length === 0) {
+                        leaderboardContainer.innerHTML = '<p class="text-center text-gray-400">No scores to display yet. Check back tomorrow!</p>';
+                        return;
+                    }
+                    
+                    // Sort the leaderboard by score descending
+                    data.leaderboard.sort((a, b) => b.score - a.score);
+
+                    // Create and display the scores with rankings
+                    data.leaderboard.forEach((person, index) => {
+                        const rank = index + 1;
+                        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+
+                        const entry = document.createElement('div');
+                        entry.className = 'leaderboard-entry bg-gray-700 p-4 rounded-lg flex items-center justify-between shadow-md';
+                        
+                        entry.innerHTML = `
+                            <div class="flex items-center">
+                                <span class="text-xl w-10 font-bold text-cyan-400">${medal}</span>
+                                <span class="font-semibold text-lg">${person.name}</span>
+                            </div>
+                            <span class="font-bold text-xl text-white">${person.score.toLocaleString()} pts</span>
+                        `;
+                        leaderboardContainer.appendChild(entry);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching scores:", error);
+                    lastUpdatedSpan.textContent = 'N/A';
+                    leaderboardContainer.innerHTML = `<p class="text-center text-red-400">Could not load scores. The competition might not have started yet. Make sure a 'scores.json' file exists in the repository.</p>`;
+                });
+        });
+    </script>
+</body>
+</html>
+

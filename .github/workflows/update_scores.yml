@@ -1,48 +1,58 @@
 name: Update Fitness Scores
 
+# Controls when the action will run. 
 on:
-  # Schedule to run every day at 7:00 AM UTC (adjust as needed for your timezone)
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  
+  # Runs on a schedule (every day at 7 AM UTC)
   schedule:
     - cron: '0 7 * * *'
-  # Allows you to run this workflow manually from the Actions tab in your repository
-  workflow_dispatch:
 
 jobs:
   update-scores:
     runs-on: ubuntu-latest
+
     steps:
-      # 1. Checks out your repository's code so the script can run
-      - name: Check out repo
+      # 1. Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Sets up the Python environment
+      # 2. Set up Python environment
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      # 3. Installs the dependencies from your requirements.txt file
+      # 3. Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 4. Runs the score update script.
-      #    It securely passes your GitHub Secrets as environment variables.
+      # 4. Run the Python script to generate scores.json
       - name: Run score update script
-        run: python update_scores.py
         env:
           STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
           STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
           STRAVA_USERS: ${{ secrets.STRAVA_USERS }}
           HR_DATA: ${{ secrets.HR_DATA }}
+        run: python update_scores.py
 
-      # 5. Commits the updated scores.json file back to your repository.
-      #    This is what makes the updated data visible to your website.
-      - name: Commit and push changes
+      # 5. NEW STEP: Commit and push the generated scores.json file
+      - name: Commit and push scores.json
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Automated: Update fitness scores"
-          file_pattern: "scores.json"
+          commit_message: "Automated daily score update"
+          file_pattern: scores.json updated_strava_users.json
+
+      # 6. If secrets were updated, update the GitHub Secret
+      - name: Update STRAVA_USERS secret if changed
+        if: steps.commit-and-push.outputs.changes_detected == 'true' && hashFiles('updated_strava_users.json') != ''
+        env:
+          GH_TOKEN: ${{ secrets.PAT_FOR_SECRETS }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh secret set STRAVA_USERS --body "$(cat updated_strava_users.json)"
 
 

@@ -39,16 +39,22 @@ jobs:
           HR_DATA: ${{ secrets.HR_DATA }}
         run: python update_scores.py
 
-      # 5. NEW STEP: Commit and push the generated scores.json file
+      # 5. DIAGNOSTIC STEP: Check if the file was created
+      - name: Verify file creation
+        run: ls -l
+
+      # 6. Commit and push the generated scores.json file
       - name: Commit and push scores.json
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Automated daily score update"
-          file_pattern: scores.json updated_strava_users.json
+          # CORRECTED: Only commit the scores.json file.
+          file_pattern: scores.json
 
-      # 6. If secrets were updated, update the GitHub Secret
+      # 7. If secrets were updated, update the GitHub Secret
       - name: Update STRAVA_USERS secret if changed
-        if: steps.commit-and-push.outputs.changes_detected == 'true' && hashFiles('updated_strava_users.json') != ''
+        # CORRECTED: This step now only depends on the existence of the temporary file.
+        if: hashFiles('updated_strava_users.json') != ''
         env:
           GH_TOKEN: ${{ secrets.PAT_FOR_SECRETS }}
           GH_REPO: ${{ github.repository }}

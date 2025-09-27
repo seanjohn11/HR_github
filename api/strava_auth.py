@@ -1,98 +1,131 @@
 from http.server import BaseHTTPRequestHandler
+import os
 import requests
 import json
-import os
-from urllib.parse import urlparse, parse_qs
 import base64
+from urllib.parse import urlparse, parse_qs
+
+# --- Environment Variables ---
+# These are loaded from Vercel's settings
+CLIENT_ID = os.environ.get("STRAVA_CLIENT_ID")
+CLIENT_SECRET = os.environ.get("STRAVA_CLIENT_SECRET")
+PAT_FOR_SECRETS = os.environ.get("PAT_FOR_SECRETS")
+REPO_OWNER = os.environ.get("GITHUB_REPO_OWNER")
+REPO_NAME = os.environ.get("GITHUB_REPO_NAME")
+JOIN_PASSWORD = os.environ.get("JOIN_PASSWORD")
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        # --- 1. PARSE INCOMING REQUEST & VALIDATE PASSWORD ---
         parsed_path = urlparse(self.path)
         query_params = parse_qs(parsed_path.query)
-        
-        try:
-            state_b64 = query_params.get("state", [None])[0]
-            if not state_b64: raise ValueError("State parameter missing")
-            
-            state_json = base64.b64decode(state_b64).decode('utf-8')
-            state_data = json.loads(state_json)
 
-            password = state_data.get('p')
-            resting_hr = int(state_data.get('r'))
-            max_hr = int(state_data.get('m'))
+        state_param = query_params.get("state")[0] if query_params.get("state") else None
+        code = query_params.get("code")[0] if query_params.get("code") else None
+        error = query_params.get("error")[0] if query_params.get("error") else None
+
+        base_url = f"https://{REPO_OWNER}.github.io/{REPO_NAME}"
+
+        if error or not code:
+            self.send_response(302)
+            self.send_header('Location', f'{base_url}/?status=error')
+            self.end_headers()
+            return
+
+        try:
+            if not state_param:
+                raise ValueError("State parameter is missing")
             
-            # Check the provided password against the one stored in Vercel environment variables
-            if password != os.environ.get("JOIN_PASSWORD"):
-                self.send_response(302)
-                self.send_header('Location', f'https://{os.environ["GITHUB_REPO_OWNER"]}.github.io/{os.environ["GITHUB_REPO_NAME"]}/?error=wrong_password')
-                self.end_headers()
-                return
+            # --- DEBUGGING STEP 1: Print the raw data from the URL ---
+            print(f"[DEBUG] Raw state parameter received: {state_param}")
+
+            state_decoded = json.loads(base64.b64decode(state_param).decode('utf-8'))
+            
+            # --- DEBUGGING STEP 2: Print the decoded data ---
+            print(f"[DEBUG] Decoded state dictionary: {state_decoded}")
+
+            # Get data from state
+            join_password_submitted = state_decoded.get('password')
+            resting_hr_str = state_decoded.get('resting_hr')
+            max_hr_str = state_decoded.get('max_hr')
+
+            # --- DEBUGGING STEP 3: Print the extracted values ---
+            print(f"[DEBUG] Extracted resting_hr: {resting_hr_str} (type: {type(resting_hr_str)})")
+            print(f"[DEBUG] Extracted max_hr: {max_hr_str} (type: {type(max_hr_str)})")
+
+            # Validate that the values are not None before converting to int
+            if resting_hr_str is None or max_hr_str is None:
+                raise ValueError("resting_hr or max_hr is missing from the decoded state.")
+
+            resting_hr = int(resting_hr_str)
+            max_hr = int(max_hr_str)
+            
+            # Validate password
+            if join_password_submitted != JOIN_PASSWORD:
+                raise ValueError("Invalid password")
 
         except Exception as e:
             print(f"State parsing or password validation failed: {e}")
             self.send_response(302)
-            self.send_header('Location', f'https://{os.environ["GITHUB_REPO_OWNER"]}.github.io/{os.environ["GITHUB_REPO_NAME"]}/?error=invalid_request')
-            self.end_headers()
-            return
-            
-        strava_code = query_params.get("code", [None])[0]
-        if not strava_code:
-            self.send_response(302)
-            self.send_header('Location', f'https://{os.environ["GITHUB_REPO_OWNER"]}.github.io/{os.environ["GITHUB_REPO_NAME"]}/?error=auth_cancelled')
+            self.send_header('Location', f'{base_url}/?status=error')
             self.end_headers()
             return
 
-        # --- 2. EXCHANGE STRAVA CODE FOR TOKENS ---
+        # --- Exchange Strava code for tokens ---
         try:
-            # ... (Code to exchange code for token remains the same)
-            token_response = requests.post("https://www.strava.com/oauth/token", data={"client_id": os.environ["STRAVA_CLIENT_ID"],"client_secret": os.environ["STRAVA_CLIENT_SECRET"],"code": strava_code,"grant_type": "authorization_code"})
+            token_response = requests.post(
+                "https://www.strava.com/api/v3/oauth/token",
+                data={
+                    "client_id": CLIENT_ID,
+                    "client_secret": CLIENT_SECRET,
+                    "code": code,
+                    "grant_type": "authorization_code"
+                }
+            )
             token_response.raise_for_status()
             token_data = token_response.json()
             
-            new_user_name = token_data['athlete']['firstname']
-            
-            new_user_secret_data = { new_user_name: { "access_token": token_data["access_token"], "refresh_token": token_data["refresh_token"], "expires_at": token_data["expires_at"] } }
-            new_hr_data = { new_user_name: [resting_hr, max_hr] }
-        except Exception as e:
-            # ... (Error handling remains the same)
-            print(f"Token exchange failed: {e}")
-            self.send_response(302)
-            self.send_header('Location', f'https://{os.environ["GITHUB_REPO_OWNER"]}.github.io/{os.environ["GITHUB_REPO_NAME"]}/?error=token_exchange_failed')
-            self.end_headers()
-            return
-            
-        # --- 3. TRIGGER GITHUB ACTIONS ---
-        try:
-            # Trigger Action to update STRAVA_USERS secret
-            self._trigger_workflow('add_new_user.yml', {'newUserJson': json.dumps(new_user_secret_data)})
-            
-            # Trigger Action to update HR_DATA secret
-            self._trigger_workflow('add_hr_data.yml', {'newHrDataJson': json.dumps(new_hr_data)})
+            athlete_name = token_data.get('athlete', {}).get('firstname', 'NewUser')
 
-        except Exception as e:
-            print(f"GitHub workflow dispatch failed: {e}")
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to get Strava token: {e}")
             self.send_response(302)
-            self.send_header('Location', f'https://{os.environ["GITHUB_REPO_OWNER"]}.github.io/{os.environ["GITHUB_REPO_NAME"]}/?error=workflow_trigger_failed')
+            self.send_header('Location', f'{base_url}/?status=error')
             self.end_headers()
             return
-            
-        # --- 4. REDIRECT USER BACK TO THE WEBSITE ---
+
+        # --- Trigger GitHub Actions ---
+        new_user_data = {
+            athlete_name: {
+                "access_token": token_data["access_token"],
+                "refresh_token": token_data["refresh_token"],
+                "expires_at": token_data["expires_at"]
+            }
+        }
+        
+        hr_data = {
+            "name": athlete_name,
+            "hr_values": [resting_hr, max_hr]
+        }
+
+        self._trigger_workflow("add_new_user.yml", {"newUserJson": json.dumps(new_user_data)})
+        self._trigger_workflow("add_hr_data.yml", {"newHrData": json.dumps(hr_data)})
+        
+        # --- Redirect user back to the main page with a success message ---
         self.send_response(302)
-        self.send_header('Location', f'https://{os.environ["GITHUB_REPO_OWNER"]}.github.io/{os.environ["GITHUB_REPO_NAME"]}/?success=true')
+        self.send_header('Location', f'{base_url}/?status=success')
         self.end_headers()
 
     def _trigger_workflow(self, workflow_name, inputs):
-        repo = f'{os.environ["GITHUB_REPO_OWNER"]}/{os.environ["GITHUB_REPO_NAME"]}'
-        pat = os.environ["PAT_FOR_SECRETS"]
-        headers = {"Authorization": f"token {pat}", "Accept": "application/vnd.github.v3+json"}
-        dispatch_url = f"https://api.github.com/repos/{repo}/actions/workflows/{workflow_name}/dispatches"
-        dispatch_payload = {"ref": "main", "inputs": inputs}
-        
-        dispatch_res = requests.post(dispatch_url, headers=headers, json=dispatch_payload)
-        
-        if dispatch_res.status_code != 204:
-            raise Exception(f"Failed to trigger {workflow_name}. Status: {dispatch_res.status_code}, Body: {dispatch_res.text}")
-        print(f"Successfully triggered workflow: {workflow_name}")
-
+        url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/actions/workflows/{workflow_name}/dispatches"
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+            "Authorization": f"token {PAT_FOR_SECRETS}"
+        }
+        data = {
+            "ref": "main",
+            "inputs": inputs
+        }
+        response = requests.post(url, headers=headers, json=data)
+        print(f"Triggered {workflow_name}: Status {response.status_code}")
+        return response
 

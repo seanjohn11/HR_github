@@ -21,26 +21,28 @@ jobs:
           EXISTING_HR_JSON: ${{ secrets.HR_DATA }}
           GH_TOKEN: ${{ secrets.PAT_FOR_SECRETS }}
           NEW_HR_JSON: ${{ github.event.inputs.newHrDataJson }}
+        shell: bash
         run: |
-          python -c "
-import os, json, subprocess
-try:
-    existing_hr_str = os.environ.get('EXISTING_HR_JSON', '{}')
-    existing_hr_data = json.loads(existing_hr_str)
-    new_hr_str = os.environ['NEW_HR_JSON']
-    new_hr_data = json.loads(new_hr_str)
-    
-    updated_hr_data = {**existing_hr_data, **new_hr_data}
-    updated_hr_json_str = json.dumps(updated_hr_data)
-    
-    print('Updating HR_DATA secret...')
-    subprocess.run(
-        ['gh', 'secret', 'set', 'HR_DATA', '--body', updated_hr_json_str],
-        check=True, text=True, capture_output=True
-    )
-    print('✅ Successfully updated HR_DATA secret.')
-except Exception as e:
-    print(f'An error occurred: {e}')
-    exit(1)
-"
+          python << 'EOF'
+          import os, json, subprocess
+          try:
+              existing_hr_str = os.environ.get('EXISTING_HR_JSON', '{}')
+              existing_hr_data = json.loads(existing_hr_str)
+              new_hr_str = os.environ['NEW_HR_JSON']
+              new_hr_data = json.loads(new_hr_str)
+              
+              updated_hr_data = {**existing_hr_data, **new_hr_data}
+              updated_hr_json_str = json.dumps(updated_hr_data)
+              
+              print('Updating HR_DATA secret...')
+              subprocess.run(
+                  ['gh', 'secret', 'set', 'HR_DATA', '--body', updated_hr_json_str],
+                  check=True, text=True, capture_output=True
+              )
+              print('✅ Successfully updated HR_DATA secret.')
+          except Exception as e:
+              print(f'An error occurred: {e}')
+              exit(1)
+          EOF
+
 

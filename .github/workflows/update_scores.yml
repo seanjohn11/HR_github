@@ -12,6 +12,9 @@ on:
 jobs:
   update-scores:
     runs-on: ubuntu-latest
+    # NEW PERMISSIONS BLOCK: This gives the job permission to push commits.
+    permissions:
+      contents: write
 
     steps:
       # 1. Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it

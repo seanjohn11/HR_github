@@ -1,50 +1,79 @@
-name: Add New User HR Data
+name: Add HR Data
 
 on:
   workflow_dispatch:
     inputs:
-      newHrDataJson:
-        description: 'JSON string of the new user HR data'
+      # CORRECTED: This now matches the input name sent by the Vercel function.
+      newHrData:
+        description: 'JSON string for the new HR data'
         required: true
+
+# Grant permissions at the top level for clarity and to avoid parsing issues.
+permissions:
+  secrets: write
 
 jobs:
   add-hr-data:
     runs-on: ubuntu-latest
-    steps:
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
 
-      - name: Run script to add HR data to secret
+    steps:
+      # This single step contains all the logic.
+      - name: Update HR_DATA secret
         env:
-          EXISTING_HR_JSON: ${{ secrets.HR_DATA }}
           GH_TOKEN: ${{ secrets.PAT_FOR_SECRETS }}
-          NEW_HR_JSON: ${{ github.event.inputs.newHrDataJson }}
+          EXISTING_HR_JSON: ${{ secrets.HR_DATA }}
+          # CORRECTED: This now reads from the correct input name.
+          NEW_HR_DATA: ${{ github.event.inputs.newHrData }}
         shell: bash
         run: |
           python << 'EOF'
-          import os, json, subprocess
+          import os
+          import json
+          import sys
+          import subprocess
+
           try:
+              # Load existing data from environment variable, ensuring it's never empty
               existing_hr_str = os.environ.get('EXISTING_HR_JSON', '{}')
+              if not existing_hr_str:
+                  existing_hr_str = '{}'
               existing_hr_data = json.loads(existing_hr_str)
-              new_hr_str = os.environ['NEW_HR_JSON']
+
+              # Load new data from environment variable
+              new_hr_str = os.environ['NEW_HR_DATA']
               new_hr_data = json.loads(new_hr_str)
               
-              print(new_hr_str)
-              print(new_hr_data)
+              # Extract the name and HR values from the new data
+              name = new_hr_data.get('name')
+              hr_values = new_hr_data.get('hr_values')
+
+              # Validate the new data before processing
+              if not name or not isinstance(hr_values, list) or len(hr_values) != 2:
+                  print(f"Error: Invalid format for new data. 'name' or 'hr_values' missing or incorrect. Data: {new_hr_str}", file=sys.stderr)
+                  sys.exit(1)
+
+              # Correctly add the new user's data to the dictionary
+              existing_hr_data[name] = hr_values
               
-              updated_hr_data = {**existing_hr_data, **new_hr_data}
-              updated_hr_json_str = json.dumps(updated_hr_data)
+              # Convert the final, updated dictionary back to a JSON string
+              updated_hr_json_str = json.dumps(existing_hr_data)
               
-              print('Updating HR_DATA secret...')
-              subprocess.run(
+              print(f"Successfully processed data for {name}. Preparing to update secret.")
+
+              # Use subprocess to call the GitHub CLI to update the secret
+              result = subprocess.run(
                   ['gh', 'secret', 'set', 'HR_DATA', '--body', updated_hr_json_str],
                   check=True, text=True, capture_output=True
               )
-              print('✅ Successfully updated HR_DATA secret.')
+              
+              print("✅ Successfully triggered secret update command.")
+              if result.stdout:
+                  print("GitHub CLI stdout:", result.stdout)
+              if result.stderr:
+                  print("GitHub CLI stderr:", result.stderr)
+
           except Exception as e:
-              print(f'An error occurred: {e}')
-              exit(1)
+              print(f"An unexpected error occurred: {e}", file=sys.stderr)
+              sys.exit(1)
           EOF
 

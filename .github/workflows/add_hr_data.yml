@@ -7,7 +7,7 @@ on:
 
     inputs:
 
-      newHrDataJson:
+      newHrData:
 
         description: 'JSON string of the new user HR data'
 

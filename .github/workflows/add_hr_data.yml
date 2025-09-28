@@ -1,79 +1,45 @@
+# This workflow adds a new user's HR data to the HR_DATA secret.
+# It is triggered by the Vercel function when a new user signs up.
 name: Add HR Data
 
 on:
   workflow_dispatch:
     inputs:
-      # CORRECTED: This now matches the input name sent by the Vercel function.
       newHrData:
         description: 'JSON string for the new HR data'
         required: true
 
-# Grant permissions at the top level for clarity and to avoid parsing issues.
+# Grant permissions for the entire workflow to write to secrets.
 permissions:
   secrets: write
 
 jobs:
   add-hr-data:
     runs-on: ubuntu-latest
-
     steps:
-      # This single step contains all the logic.
+      # Step 1: Check out the repository to gain access to the script files.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up the Python environment that the script will run in.
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      # Step 3: Run the dedicated Python script to handle the logic.
+      # This passes the secrets and inputs from the workflow into the script as environment variables.
+      - name: Run script to merge HR data
+        env:
+          EXISTING_HR_JSON: ${{ secrets.HR_DATA }}
+          NEW_HR_DATA: ${{ github.event.inputs.newHrData }}
+        run: python scripts/add_hr_data.py
+      
+      # Step 4: Use the output file from the script to update the GitHub secret.
       - name: Update HR_DATA secret
         env:
           GH_TOKEN: ${{ secrets.PAT_FOR_SECRETS }}
-          EXISTING_HR_JSON: ${{ secrets.HR_DATA }}
-          # CORRECTED: This now reads from the correct input name.
-          NEW_HR_DATA: ${{ github.event.inputs.newHrData }}
-        shell: bash
+          GH_REPO: ${{ github.repository }}
         run: |
-          python << 'EOF'
-          import os
-          import json
-          import sys
-          import subprocess
-
-          try:
-              # Load existing data from environment variable, ensuring it's never empty
-              existing_hr_str = os.environ.get('EXISTING_HR_JSON', '{}')
-              if not existing_hr_str:
-                  existing_hr_str = '{}'
-              existing_hr_data = json.loads(existing_hr_str)
-
-              # Load new data from environment variable
-              new_hr_str = os.environ['NEW_HR_DATA']
-              new_hr_data = json.loads(new_hr_str)
-              
-              # Extract the name and HR values from the new data
-              name = new_hr_data.get('name')
-              hr_values = new_hr_data.get('hr_values')
-
-              # Validate the new data before processing
-              if not name or not isinstance(hr_values, list) or len(hr_values) != 2:
-                  print(f"Error: Invalid format for new data. 'name' or 'hr_values' missing or incorrect. Data: {new_hr_str}", file=sys.stderr)
-                  sys.exit(1)
-
-              # Correctly add the new user's data to the dictionary
-              existing_hr_data[name] = hr_values
-              
-              # Convert the final, updated dictionary back to a JSON string
-              updated_hr_json_str = json.dumps(existing_hr_data)
-              
-              print(f"Successfully processed data for {name}. Preparing to update secret.")
-
-              # Use subprocess to call the GitHub CLI to update the secret
-              result = subprocess.run(
-                  ['gh', 'secret', 'set', 'HR_DATA', '--body', updated_hr_json_str],
-                  check=True, text=True, capture_output=True
-              )
-              
-              print("✅ Successfully triggered secret update command.")
-              if result.stdout:
-                  print("GitHub CLI stdout:", result.stdout)
-              if result.stderr:
-                  print("GitHub CLI stderr:", result.stderr)
-
-          except Exception as e:
-              print(f"An unexpected error occurred: {e}", file=sys.stderr)
-              sys.exit(1)
-          EOF
+          gh secret set HR_DATA --body "$(cat updated_hr_data.json)"
 

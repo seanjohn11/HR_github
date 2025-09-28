@@ -7,11 +7,14 @@ on:
         description: 'JSON string for the new HR data'
         required: true
 
+# PERMISSIONS MOVED TO TOP LEVEL: This grants write access for secrets to all jobs in this workflow.
+permissions:
+  secrets: write
+
 jobs:
   add-hr-data:
     runs-on: ubuntu-latest
-    permissions:
-      secrets: write
+    # The permissions block is no longer needed here.
 
     steps:
       # Step 1: Check out the repository to access the script.

@@ -1,45 +1,47 @@
-# This workflow adds a new user's HR data to the HR_DATA secret.
-# It is triggered by the Vercel function when a new user signs up.
-name: Add HR Data
+    # This workflow adds a new user's HR data to the HR_DATA secret.
+    # It is triggered by the Vercel function when a new user signs up.
+    name: Add HR Data
+    
+    on:
+      workflow_dispatch:
+        inputs:
+          newHrData:
+            description: 'JSON string for the new HR data'
+            required: true
+    
+    # Grant permissions for the entire workflow to write to secrets.
+    permissions:
+      secrets: write
+    
+    jobs:
+      add-hr-data:
+        runs-on: ubuntu-latest
+        steps:
+          # Step 1: Check out the repository to gain access to the script files.
+          - name: Checkout repository
+            uses: actions/checkout@v4
+    
+          # Step 2: Set up the Python environment that the script will run in.
+          - name: Set up Python
+            uses: actions/setup-python@v4
+            with:
+              python-version: '3.10'
+          
+          # Step 3: Run the dedicated Python script to handle the logic.
+          - name: Run script to merge HR data
+            env:
+              EXISTING_HR_JSON: ${{ secrets.HR_DATA }}
+              NEW_HR_DATA: ${{ github.event.inputs.newHrData }}
+            run: python scripts/add_hr_data.py
+          
+          # Step 4: Use the output file from the script to update the GitHub secret.
+          - name: Update HR_DATA secret
+            env:
+              GH_TOKEN: ${{ secrets.PAT_FOR_SECRETS }}
+              GH_REPO: ${{ github.repository }}
+            run: |
+              gh secret set HR_DATA --body "$(cat updated_hr_data.json)"
+    
+    
 
-on:
-  workflow_dispatch:
-    inputs:
-      newHrData:
-        description: 'JSON string for the new HR data'
-        required: true
-
-# Grant permissions for the entire workflow to write to secrets.
-permissions:
-  secrets: write
-
-jobs:
-  add-hr-data:
-    runs-on: ubuntu-latest
-    steps:
-      # Step 1: Check out the repository to gain access to the script files.
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Step 2: Set up the Python environment that the script will run in.
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      
-      # Step 3: Run the dedicated Python script to handle the logic.
-      # This passes the secrets and inputs from the workflow into the script as environment variables.
-      - name: Run script to merge HR data
-        env:
-          EXISTING_HR_JSON: ${{ secrets.HR_DATA }}
-          NEW_HR_DATA: ${{ github.event.inputs.newHrData }}
-        run: python scripts/add_hr_data.py
-      
-      # Step 4: Use the output file from the script to update the GitHub secret.
-      - name: Update HR_DATA secret
-        env:
-          GH_TOKEN: ${{ secrets.PAT_FOR_SECRETS }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          gh secret set HR_DATA --body "$(cat updated_hr_data.json)"
 

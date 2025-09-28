@@ -1,48 +1,52 @@
-name: Add New User HR Data
-
-on:
-  workflow_dispatch:
-    inputs:
-      newHrDataJson:
-        description: 'JSON string of the new user HR data'
-        required: true
-
-jobs:
-  add-hr-data:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Run script to add HR data to secret
+- name: Update HR_DATA secret
         env:
-          EXISTING_HR_JSON: ${{ secrets.HR_DATA }}
           GH_TOKEN: ${{ secrets.PAT_FOR_SECRETS }}
-          NEW_HR_JSON: ${{ github.event.inputs.newHrDataJson }}
+          GH_REPO: ${{ github.repository }}
+          EXISTING_HR_JSON: ${{ secrets.HR_DATA }}
+          NEW_HR_DATA: ${{ github.event.inputs.newHrData }} # This name comes from the Vercel function
         shell: bash
         run: |
           python << 'EOF'
-          import os, json, subprocess
+          import os
+          import json
+          import subprocess
+
           try:
+              # Load existing data
               existing_hr_str = os.environ.get('EXISTING_HR_JSON', '{}')
               existing_hr_data = json.loads(existing_hr_str)
-              new_hr_str = os.environ['NEW_HR_JSON']
+
+              # Load new data
+              new_hr_str = os.environ['NEW_HR_DATA']
               new_hr_data = json.loads(new_hr_str)
               
-              updated_hr_data = {**existing_hr_data, **new_hr_data}
+              # --- START: CORRECTED LOGIC ---
+              # Extract the name and values from the new data
+              name = new_hr_data.get('name')
+              hr_values = new_hr_data.get('hr_values')
+
+              if not name or not hr_values:
+                  print("Error: 'name' or 'hr_values' was missing from the new data.")
+                  exit(1)
+
+              # Correctly add the new user to the existing dictionary
+              existing_hr_data[name] = hr_values
+              updated_hr_data = existing_hr_data
+              # --- END: CORRECTED LOGIC ---
+
+              # Convert the final, correct dictionary back to a JSON string
               updated_hr_json_str = json.dumps(updated_hr_data)
               
-              print('Updating HR_DATA secret...')
-              subprocess.run(
+              print(f'Updating HR_DATA secret for user: {name}')
+              # Use subprocess to call the GitHub CLI and update the secret
+              result = subprocess.run(
                   ['gh', 'secret', 'set', 'HR_DATA', '--body', updated_hr_json_str],
                   check=True, text=True, capture_output=True
               )
               print('✅ Successfully updated HR_DATA secret.')
+              print(result.stdout) # Print any output from the gh command for verification
+
           except Exception as e:
               print(f'An error occurred: {e}')
               exit(1)
           EOF
-
-

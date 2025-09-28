@@ -1,45 +1,50 @@
-name: Add HR Data
+name: Add New User HR Data
 
 on:
   workflow_dispatch:
     inputs:
-      newHrData:
-        description: 'JSON string for the new HR data'
+      newHrDataJson:
+        description: 'JSON string of the new user HR data'
         required: true
-
-# PERMISSIONS MOVED TO TOP LEVEL: This grants write access for secrets to all jobs in this workflow.
-permissions:
-  secrets: write
 
 jobs:
   add-hr-data:
     runs-on: ubuntu-latest
-    # The permissions block is no longer needed here.
-
     steps:
-      # Step 1: Check out the repository to access the script.
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Step 2: Set up the Python environment.
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      
-      # Step 3: Run the script to merge the HR data.
-      # This will create a file named 'updated_hr_data.json'.
-      - name: Run add HR data script
+
+      - name: Run script to add HR data to secret
         env:
           EXISTING_HR_JSON: ${{ secrets.HR_DATA }}
-          NEW_HR_DATA: ${{ github.event.inputs.newHrData }}
-        run: python scripts/add_hr_data.py
-      
-      # Step 4: Update the HR_DATA secret with the content of the new file.
-      - name: Update HR_DATA secret
-        env:
           GH_TOKEN: ${{ secrets.PAT_FOR_SECRETS }}
-          GH_REPO: ${{ github.repository }}
+          NEW_HR_JSON: ${{ github.event.inputs.newHrDataJson }}
+        shell: bash
         run: |
-          gh secret set HR_DATA --body "$(cat updated_hr_data.json)"
+          python << 'EOF'
+          import os, json, subprocess
+          try:
+              existing_hr_str = os.environ.get('EXISTING_HR_JSON', '{}')
+              existing_hr_data = json.loads(existing_hr_str)
+              new_hr_str = os.environ['NEW_HR_JSON']
+              new_hr_data = json.loads(new_hr_str)
+              
+              print(new_hr_str)
+              print(new_hr_data)
+              
+              updated_hr_data = {**existing_hr_data, **new_hr_data}
+              updated_hr_json_str = json.dumps(updated_hr_data)
+              
+              print('Updating HR_DATA secret...')
+              subprocess.run(
+                  ['gh', 'secret', 'set', 'HR_DATA', '--body', updated_hr_json_str],
+                  check=True, text=True, capture_output=True
+              )
+              print('✅ Successfully updated HR_DATA secret.')
+          except Exception as e:
+              print(f'An error occurred: {e}')
+              exit(1)
+          EOF
 

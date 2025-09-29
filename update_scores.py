@@ -135,8 +135,6 @@ def main():
                     ("Z4", 0.8 * max_hr, 0.9 * max_hr),
                     ("Z5", 0.9 * max_hr, max_hr * 1.5) # Buffer for max
                 ]
-                
-                print(hr_stream)
 
                 score = calculate_score(hr_stream, activity['elapsed_time'], zones)
                 

@@ -1,6 +1,7 @@
 import os
 import json
 import sys
+import subprocess
 
 def main():
     """
@@ -23,7 +24,7 @@ def main():
 
         # Step 2: Load the new user's HR data from the environment variable.
         # This is passed as an input to the workflow from the Vercel function.
-        new_hr_data_json = os.environ.get('NEW_HR_DATA')
+        new_hr_data_json = os.environ.get('NEW_HR_JSON')
         if not new_hr_data_json:
             print("Error: NEW_HR_DATA environment variable not set.", file=sys.stderr)
             sys.exit(1)
@@ -47,12 +48,31 @@ def main():
         hr_data[name] = hr_values
         print(f"Successfully formatted HR data for {name}.")
 
-        # Step 6: Write the final, updated dictionary to a new file.
+        """# Step 6: Write the final, updated dictionary to a new file.
         # The calling GitHub workflow will then read this file to update the secret.
         with open('updated_hr_data.json', 'w') as f:
             json.dump(hr_data, f, indent=2)
         
-        print("Created updated_hr_data.json file for the next step.")
+        print("Created updated_hr_data.json file for the next step.")"""
+        
+        print("Updating the HR_DATA secret...")
+        
+        hr_data_str = json.dumps(hr_data)
+        
+        # Using a subprocess to securely call the GitHub CLI
+        # Note: We pass the secret via stdin for extra security, preventing it from appearing in shell history.
+        process = subprocess.run(
+            ['gh', 'secret', 'set', 'HR_DATA', '--body', hr_data_str],
+            capture_output=True,
+            text=True
+        )
+
+        if process.returncode == 0:
+            print("✅ Successfully updated the HR_DATA secret.")
+        else:
+            print("❌ Error updating secret.")
+            print("Stderr:", process.stderr)
+            exit(1) # Exit with an error code to fail the workflow
 
     except Exception as e:
         print(f"A critical error occurred in the Python script: {e}", file=sys.stderr)

@@ -47,7 +47,7 @@ jobs:
 
           python << 'EOF'
 
-          import os, json, subprocess
+          import os, json, subprocess, sys
 
           try:
 

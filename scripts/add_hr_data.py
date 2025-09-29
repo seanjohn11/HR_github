@@ -59,6 +59,8 @@ def main():
         
         hr_data_str = json.dumps(hr_data)
         
+        print(hr_data_str)
+        
         # Using a subprocess to securely call the GitHub CLI
         # Note: We pass the secret via stdin for extra security, preventing it from appearing in shell history.
         process = subprocess.run(

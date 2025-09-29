@@ -51,58 +51,58 @@ jobs:
 
           python << 'EOF'
 
-          import os, json, subprocess, sys
+import os, json, subprocess, sys
 
-          try:
+try:
 
-              existing_hr_str = os.environ.get('EXISTING_HR_JSON', '{}')
+    existing_hr_str = os.environ.get('EXISTING_HR_JSON', '{}')
               
-              print(existing_hr_str)
+    print(existing_hr_str)
 
-              existing_hr_data = json.loads(existing_hr_str)
+    existing_hr_data = json.loads(existing_hr_str)
 
-              new_hr_str = os.environ['NEW_HR_JSON']
+    new_hr_str = os.environ['NEW_HR_JSON']
               
-              print(new_hr_str)
+    print(new_hr_str)
 
-              new_hr_data = json.loads(new_hr_str)
-
-              
-
-              updated_hr_data = {**existing_hr_data, **new_hr_data}
-
-              updated_hr_json_str = json.dumps(updated_hr_data)
+    new_hr_data = json.loads(new_hr_str)
 
               
 
-              print('Updating HR_DATA secret...')
+    updated_hr_data = {**existing_hr_data, **new_hr_data}
 
-              subprocess.run(
+    updated_hr_json_str = json.dumps(updated_hr_data)
 
-                  ['gh', 'secret', 'set', 'HR_DATA', '--body', updated_hr_json_str],
+              
 
-                  check=True, text=True, capture_output=True
+    print('Updating HR_DATA secret...')
 
-              )
+    subprocess.run(
 
-              print('✅ Successfully updated HR_DATA secret.')
+        ['gh', 'secret', 'set', 'HR_DATA', '--body', updated_hr_json_str],
 
-          except subprocess.CalledProcessError as e:
+        check=True, text=True, capture_output=True
+
+    )
+
+    print('✅ Successfully updated HR_DATA secret.')
+
+except subprocess.CalledProcessError as e:
           
-              print(f'An error occurred while running the "gh secret set" command.', file=sys.stderr)
+    print(f'An error occurred while running the "gh secret set" command.', file=sys.stderr)
               
-              print(f'Return Code: {e.returncode}', file=sys.stderr)
+    print(f'Return Code: {e.returncode}', file=sys.stderr)
               
-              print(f'STDOUT: {e.stdout}', file=sys.stderr)
+    print(f'STDOUT: {e.stdout}', file=sys.stderr)
               
-              print(f'STDERR (This is the important error from GitHub): {e.stderr}', file=sys.stderr)
+    print(f'STDERR (This is the important error from GitHub): {e.stderr}', file=sys.stderr)
               
-              sys.exit(1)
+    sys.exit(1)
               
-          except Exception as e:
+except Exception as e:
           
-              print(f'An unexpected Python error occurred: {e}', file=sys.stderr)
+    print(f'An unexpected Python error occurred: {e}', file=sys.stderr)
               
-              sys.exit(1)
+    sys.exit(1)
               
-          EOF 
+EOF 

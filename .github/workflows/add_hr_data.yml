@@ -56,10 +56,14 @@ jobs:
           try:
 
               existing_hr_str = os.environ.get('EXISTING_HR_JSON', '{}')
+              
+              print(existing_hr_str)
 
               existing_hr_data = json.loads(existing_hr_str)
 
               new_hr_str = os.environ['NEW_HR_JSON']
+              
+              print(new_hr_str)
 
               new_hr_data = json.loads(new_hr_str)
 

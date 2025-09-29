@@ -79,10 +79,22 @@ jobs:
 
               print('✅ Successfully updated HR_DATA secret.')
 
+          except subprocess.CalledProcessError as e:
+          
+              print(f'An error occurred while running the "gh secret set" command.', file=sys.stderr)
+              
+              print(f'Return Code: {e.returncode}', file=sys.stderr)
+              
+              print(f'STDOUT: {e.stdout}', file=sys.stderr)
+              
+              print(f'STDERR (This is the important error from GitHub): {e.stderr}', file=sys.stderr)
+              
+              sys.exit(1)
+              
           except Exception as e:
-
-              print(f'An error occurred: {e}')
-
-              exit(1)
-
+          
+              print(f'An unexpected Python error occurred: {e}', file=sys.stderr)
+              
+              sys.exit(1)
+              
           EOF 

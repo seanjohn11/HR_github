@@ -39,8 +39,8 @@ def main():
         name = new_hr_data.get('name')
         hr_values = new_hr_data.get('hr_values')
         
-        print(name)
-        print(hr_values)
+        #print(name)
+        #print(hr_values)
 
         # Step 4: Validate the new data to ensure it's in the correct format.
         if not name or not isinstance(hr_values, list) or len(hr_values) != 2:

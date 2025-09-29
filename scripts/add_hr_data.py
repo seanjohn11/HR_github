@@ -38,6 +38,9 @@ def main():
         # Step 3: Extract the name and HR values from the new user's data.
         name = new_hr_data.get('name')
         hr_values = new_hr_data.get('hr_values')
+        
+        print(name)
+        print(hr_values)
 
         # Step 4: Validate the new data to ensure it's in the correct format.
         if not name or not isinstance(hr_values, list) or len(hr_values) != 2:
@@ -58,8 +61,6 @@ def main():
         print("Updating the HR_DATA secret...")
         
         hr_data_str = json.dumps(hr_data)
-        
-        print(hr_data_str)
         
         # Using a subprocess to securely call the GitHub CLI
         # Note: We pass the secret via stdin for extra security, preventing it from appearing in shell history.

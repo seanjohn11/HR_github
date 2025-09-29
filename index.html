@@ -158,7 +158,7 @@
                 const maxHr = document.getElementById('max_hr').value;
 
                 const redirectUri = encodeURIComponent(vercelUrl);
-                const scope = 'read,activity:read_all';
+                const scope = 'activity:read_all';
                 
                 const state = btoa(JSON.stringify({
                     password: password,

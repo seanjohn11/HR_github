@@ -58,6 +58,7 @@ class handler(BaseHTTPRequestHandler):
             token_response.raise_for_status()
             token_data = token_response.json()
             athlete_name = token_data.get('athlete', {}).get('firstname', 'NewUser')
+            athlete_id = token_data.get('athlete', {}).get('id')
         except requests.exceptions.RequestException as e:
             print(f"Failed to get Strava token: {e}")
             self.send_response(302)
@@ -66,8 +67,8 @@ class handler(BaseHTTPRequestHandler):
             return
 
         # Triggering both workflows
-        new_user_data = { athlete_name: { "access_token": token_data["access_token"], "refresh_token": token_data["refresh_token"], "expires_at": token_data["expires_at"] } }
-        hr_data = { "name": athlete_name, "hr_values": [resting_hr, max_hr] }
+        new_user_data = { athlete_id: { "access_token": token_data["access_token"], "refresh_token": token_data["refresh_token"], "expires_at": token_data["expires_at"], "name": athlete_name } }
+        hr_data = { "athlete_id": athlete_id, "name": athlete_name, "hr_values": [resting_hr, max_hr] }
 
         self._trigger_workflow("add_new_user.yml", {"newUserJson": json.dumps(new_user_data)})
         self._trigger_workflow("add_hr_data.yml", {"newHrData": json.dumps(hr_data)})

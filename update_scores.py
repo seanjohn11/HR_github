@@ -27,8 +27,8 @@ def refresh_strava_token(client_id, client_secret, refresh_token):
     
     token_data = response.json()
     print("Token refreshed successfully.")
-    print("IMPORTANT: You must manually update the STRAVA_USERS secret in your GitHub repository with the new token values below.")
-    print(f"New tokens: {token_data}")
+    #print("IMPORTANT: You must manually update the STRAVA_USERS secret in your GitHub repository with the new token values below.")
+    #print(f"New tokens: {token_data}")
     return token_data
 
 def get_activities(user_creds, after_timestamp):
@@ -99,6 +99,8 @@ def main():
             user_creds["access_token"] = new_tokens["access_token"]
             user_creds["refresh_token"] = new_tokens["refresh_token"]
             user_creds["expires_at"] = new_tokens["expires_at"]
+            
+            
             # The printed message will alert the user to update the secret for future runs.
             
         # 2. Fetch activities

@@ -17,7 +17,7 @@ qstash_client = qstash.QStash(QSTASH_TOKEN)
 app = Flask(__name__)
 
 # --- Webhook Endpoint (Receives events from Strava) ---
-@app.route('/api/strava_webhook_handler/webhook', methods=['GET', 'POST'])
+@app.route('/webhook', methods=['GET', 'POST'])
 def strava_webhook():
     if request.method == 'GET':
         return handle_verification()

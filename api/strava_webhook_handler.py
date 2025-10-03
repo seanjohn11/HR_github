@@ -1,5 +1,5 @@
 import os
-#import json
+import json
 from flask import Flask, request, jsonify
 #from vercel_kv import KV
 import qstash
@@ -28,6 +28,24 @@ def strava_webhook():
 def handle_verification():
     """Handles the Strava webhook subscription verification."""
     print("Handling verification request...")
+    print("--- RAW REQUEST DATA DUMP ---")
+    try:
+        # 1. The full URL that Flask sees, including any query string
+        print(f"Request URL: {request.url}")
+
+        # 2. The raw query string from the underlying server environment
+        # This is the most important line.
+        raw_query_string = request.environ.get('QUERY_STRING', 'NOT_FOUND')
+        print(f"Raw Query String from Environ: {raw_query_string}")
+
+        # 3. All incoming HTTP headers, which can reveal proxy/redirect info
+        headers_dict = dict(request.headers)
+        print(f"Request Headers:\n{json.dumps(headers_dict, indent=2)}")
+
+    except Exception as e:
+        print(f"Error during request inspection: {e}")
+    
+    print("--- END RAW DATA DUMP ---")
     mode = request.args.get('hub.mode')
     challenge = request.args.get('hub.challenge')
     token = request.args.get('hub.verify_token')

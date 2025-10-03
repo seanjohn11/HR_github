@@ -1,7 +1,7 @@
 import os
 import json
 from flask import Flask, request, jsonify
-from vercel_kv import kv
+from vercel_kv import KV
 import qstash
 import strava_functions as strava_funcs
 
@@ -114,13 +114,13 @@ def process_queued_event():
                 # Check if token needs refreshing
                 # Use token and Activity ID to bring in information
                 activity_value = strava_funcs.activity_processing(str(owner_id),str(object_id))
-                kv.hset(athlete_key, {activity_field: activity_value})
+                KV.hset(athlete_key, {activity_field: activity_value})
                 print("✅ Successfully saved activity")
 
             elif aspect_type == 'delete':
                 # For deletes, we remove the specific activity field from the athlete's hash.
                 print("Deleting activity...")
-                kv.hdel(athlete_key, activity_field)
+                KV.hdel(athlete_key, activity_field)
                 print("✅ Successfully deleted activity")
 
         elif object_type == 'athlete':
@@ -129,7 +129,7 @@ def process_queued_event():
                 # This handles the deauthorization event.
                 # We delete the entire hash for the athlete, removing all their data.
                 print("Athlete deauthorized. Deleting all their data...")
-                kv.delete(athlete_key)
+                KV.delete(athlete_key)
                 # Also need to delete all secrets that were associated with athlete
                 
                 print("✅ Successfully deleted all data for athlete")

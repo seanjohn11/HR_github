@@ -2,7 +2,7 @@ import os
 import json
 import time
 import requests
-from vercel_kv import kv
+from vercel_kv import KV
 from datetime import datetime#, timedelta
 #from dateutil import parser
 
@@ -100,7 +100,7 @@ def main():
         score_board[name] = 0
         try:
             # hgetall retrieves all fields (activity IDs) and values (activity data)
-            activities = kv.hgetall(athlete_id)
+            activities = KV.hgetall(athlete_id)
             if not activities:
                 print(f"No activities found in Vercel KV for athlete {name}.")
                 return

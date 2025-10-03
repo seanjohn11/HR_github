@@ -31,6 +31,9 @@ def handle_verification():
     mode = request.args.get('hub.mode')
     challenge = request.args.get('hub.challenge')
     token = request.args.get('hub.verify_token')
+    print(mode)
+    print(challenge)
+    print(token)
 
     if mode == 'subscribe' and token == VERIFY_TOKEN:
         print("Webhook Verified!")

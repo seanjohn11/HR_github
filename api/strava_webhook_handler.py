@@ -3,7 +3,7 @@ import json
 from flask import Flask, request, jsonify
 from vercel_kv import KV
 import qstash
-import strava_functions as strava_funcs
+from strava_functions import activity_processing
 
 # --- Configuration ---
 VERIFY_TOKEN = os.environ.get('STRAVA_VERIFY_TOKEN')
@@ -113,7 +113,7 @@ def process_queued_event():
                 # Needs to connect Athlete ID to token
                 # Check if token needs refreshing
                 # Use token and Activity ID to bring in information
-                activity_value = strava_funcs.activity_processing(str(owner_id),str(object_id))
+                activity_value = activity_processing(str(owner_id),str(object_id))
                 KV.hset(athlete_key, {activity_field: activity_value})
                 print("✅ Successfully saved activity")
 

@@ -9,7 +9,7 @@ from .strava_functions import activity_processing
 VERIFY_TOKEN = os.environ.get('STRAVA_VERIFY_TOKEN')
 
 # Initialize the QStash client to send messages
-qstash_client = qstash.Client(os.environ.get("QSTASH_TOKEN"))
+qstash_client = qstash.client(os.environ.get("QSTASH_TOKEN"))
 
 # --- Flask App Initialization ---
 app = Flask(__name__)

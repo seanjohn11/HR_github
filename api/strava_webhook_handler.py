@@ -3,7 +3,7 @@ import json
 from flask import Flask, request, jsonify
 from vercel_kv import KV
 import qstash
-from strava_functions import activity_processing
+from .strava_functions import activity_processing
 
 # --- Configuration ---
 VERIFY_TOKEN = os.environ.get('STRAVA_VERIFY_TOKEN')

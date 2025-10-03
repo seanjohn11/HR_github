@@ -2,7 +2,7 @@ import os
 import json
 from flask import Flask, request, jsonify
 from vercel_kv import KV
-import qstash
+from qstash import Client
 from .strava_functions import activity_processing
 
 # --- Configuration ---
@@ -11,7 +11,7 @@ VERIFY_TOKEN = os.environ.get('STRAVA_VERIFY_TOKEN')
 QSTASH_TOKEN = os.environ.get('QSTASH_TOKEN')
 
 # Initialize the QStash client to send messages
-qstash_client = qstash.client(QSTASH_TOKEN)
+qstash_client = Client(QSTASH_TOKEN)
 
 # --- Flask App Initialization ---
 app = Flask(__name__)

@@ -19,7 +19,7 @@ def main():
         try:
             hr_data = json.loads(existing_hr_json)
         except json.JSONDecodeError:
-            print(f"Warning: Could not parse EXISTING_HR_JSON. Starting with an empty dictionary.", file=sys.stderr)
+            print("Warning: Could not parse EXISTING_HR_JSON. Starting with an empty dictionary.", file=sys.stderr)
             hr_data = {}
 
         # Step 2: Load the new user's HR data from the environment variable.
@@ -32,23 +32,38 @@ def main():
         try:
             new_hr_data = json.loads(new_hr_data_json)
         except json.JSONDecodeError:
-            print(f"Error: Could not parse NEW_HR_DATA JSON: {new_hr_data_json}", file=sys.stderr)
+            print("Error: Could not parse", file=sys.stderr)
             sys.exit(1)
             
         # Step 3: Extract the name and HR values from the new user's data.
-        name = new_hr_data.get('name')
-        hr_values = new_hr_data.get('hr_values')
+        
+        # Step 3a: Validate the new outer structure and extract the inner dictionary.
+        # This ensures the data is a dictionary with exactly one key (the user ID).
+        if not isinstance(new_hr_data, dict) or len(new_hr_data) != 1:
+            print("Error: Invalid outer data format. Expected a single key-value pair.", file=sys.stderr)
+            sys.exit(1)
+        
+        # Get the inner dictionary, which is the first value of the outer dictionary.
+        user_data = list(new_hr_data.values())[0]
+        user_id = list(new_hr_data.keys())[0]
+        
+        # Step 3b: Extract the name and HR values from the new user's data.
+        # This now uses the 'user_data' dictionary we just extracted.
+        name = user_data.get('name')
+        hr_values = user_data.get('hr_values')
+        
+        # --- END OF UPDATED SECTION ---
         
         #print(name)
         #print(hr_values)
 
         # Step 4: Validate the new data to ensure it's in the correct format.
         if not name or not isinstance(hr_values, list) or len(hr_values) != 2:
-            print(f"Error: Invalid new data format. 'name' or 'hr_values' missing or incorrect. Data: {new_hr_data_json}", file=sys.stderr)
+            print("Error: Invalid new data format. 'name' or 'hr_values' missing or incorrect.", file=sys.stderr)
             sys.exit(1)
 
         # Step 5: Correctly add the new user's data to the dictionary, using their name as the key.
-        hr_data[name] = hr_values
+        hr_data[user_id] = user_data
         print(f"Successfully formatted HR data for {name}.")
 
         """# Step 6: Write the final, updated dictionary to a new file.

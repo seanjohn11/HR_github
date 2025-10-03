@@ -17,7 +17,7 @@ qstash_client = qstash.QStash(QSTASH_TOKEN)
 app = Flask(__name__)
 
 # --- Webhook Endpoint (Receives events from Strava) ---
-@app.route('/api/strava_webhook_handler', methods=['GET', 'POST'])
+@app.route('/api/strava_webhook_handler/webhook', methods=['GET', 'POST'])
 def strava_webhook():
     if request.method == 'GET':
         return handle_verification()
@@ -66,7 +66,7 @@ def handle_event_reception():
 
 
 # --- Processing Endpoint (Receives events from QStash) ---
-@app.route('/process-webhook', methods=['POST'])
+@app.route('/api/strava_webhook_handler/process-webhook', methods=['POST'])
 def process_queued_event():
     """
     This endpoint is called by QStash, not Strava. It does the actual work

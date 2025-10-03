@@ -123,12 +123,16 @@ def process_queued_event():
                 kv.hdel(athlete_key, activity_field)
                 print("✅ Successfully deleted activity")
 
-        elif object_type == 'athlete' and aspect_type == 'update':
-            # This handles the deauthorization event.
-            # We delete the entire hash for the athlete, removing all their data.
-            print("Athlete deauthorized. Deleting all their data...")
-            kv.delete(athlete_key)
-            print("✅ Successfully deleted all data for athlete")
+        elif object_type == 'athlete':
+            # Verify that this is a deauthorization event otherwise ignore
+            if event_data.get('updates', {}).get('authorized') == 'false':
+                # This handles the deauthorization event.
+                # We delete the entire hash for the athlete, removing all their data.
+                print("Athlete deauthorized. Deleting all their data...")
+                kv.delete(athlete_key)
+                # Also need to delete all secrets that were associated with athlete
+                
+                print("✅ Successfully deleted all data for athlete")
 
     except Exception as e:
         print(f"❌ ERROR processing event for athlete. Error: {e}")

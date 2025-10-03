@@ -127,9 +127,9 @@ def zone_builder(athlete_id):
     """This builds a list that holds the top hr 
     of the first 4 zones from user provided data"""
     hr_secret = json.loads(os.environ["HR_DATA"])
-    user_vals = hr_secret[athlete_id]
-    min = user_vals[0]
-    res = user_vals[1] - user_vals[0]
+    #user_vals = hr_secret[athlete_id]
+    min = hr_secret[athlete_id]['hr_values'][0]
+    res = hr_secret[athlete_id]['hr_values'][1] - hr_secret[athlete_id]['hr_values'][0]
     
     maxes = [math.floor(min + .6*res),
              math.floor(min + .7*res),

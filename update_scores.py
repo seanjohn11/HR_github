@@ -2,8 +2,9 @@ import os
 import json
 import time
 import requests
-from datetime import datetime, timedelta
-from dateutil import parser
+from vercel_kv import kv
+from datetime import datetime#, timedelta
+#from dateutil import parser
 
 def token_expired(expires_at):
     """Check if the Strava token is expired."""
@@ -71,18 +72,78 @@ def calculate_score(hr_data, duration_seconds, zones):
     return activity_score / 60 # Return score in minutes
 
 
+def calculate_activity_score(activity_data):
+    """
+    Calculates the final score based on pre-calculated time-in-zone data
+    stored in the activity's record.
+    """
+    score = activity_data["z1"] + activity_data["z2"] + activity_data["z3"] + 2*(activity_data["z4"] + activity_data["z5"])
+    score = score/60
+    
+    return score
+
 def main():
     # --- Load secrets from environment variables ---
     try:
-        client_id = os.environ["STRAVA_CLIENT_ID"]
-        client_secret = os.environ["STRAVA_CLIENT_SECRET"]
+        #client_id = os.environ["STRAVA_CLIENT_ID"]
+        #client_secret = os.environ["STRAVA_CLIENT_SECRET"]
         users = json.loads(os.environ["STRAVA_USERS"])
-        hr_data_config = json.loads(os.environ["HR_DATA"])
+        #hr_data_config = json.loads(os.environ["HR_DATA"])
     except (KeyError, json.JSONDecodeError) as e:
         print(f"Error: Missing or invalid environment variable. Please check your GitHub Secrets. Details: {e}")
         return
+    
+    score_board = {}
+    
+    for athlete_id in users:
+        name = users[athlete_id]['name']
+        score_board[name] = 0
+        try:
+            # hgetall retrieves all fields (activity IDs) and values (activity data)
+            activities = kv.hgetall(athlete_id)
+            if not activities:
+                print(f"No activities found in Vercel KV for athlete {name}.")
+                return
+    
+            print(f"\nFound {len(activities)} activities to process in Vercel KV.")
+            
+            total_score_all_activities = 0
+    
+            for activity_id, activity_json_str in activities.items():
+                
+                try:
+                    # The data from KV is a JSON string, so we need to parse it
+                    activity_data = json.loads(activity_json_str)
+    
+                    # Verify that this record actually contains our zone data
+                    if 'z1' not in activity_data:
+                        print("⚠️ Skipping activity: Record does not contain pre-calculated zone data.")
+                        continue
+                    
+                    # Calculate the score for this single activity
+                    activity_score = calculate_activity_score(activity_data)
+                    total_score_all_activities += activity_score
+    
+                    print("\n--- Results (from stored data) ---")
+                    for i in range(1, 6):
+                        zone_key = f'z{i}'
+                        seconds = activity_data.get(zone_key, 0)
+                        print(f"Time in Zone {i}: {seconds / 60:.2f} minutes")
+                    
+                    print(f"🏆 Score for this Activity: {activity_score:.2f} points")
+    
+                except json.JSONDecodeError:
+                    print("⚠️ Skipping activity: Could not parse the stored JSON data.")
+                except Exception as e:
+                    print(f"An error occurred while analyzing activity: {e}")
+            
+            #print(f"\n{'='*40}\n🏁 Grand Total Score for Athlete {athlete_id}: {total_score_all_activities:.2f} points\n{'='*40}")
+            score_board[name] = total_score_all_activities
+    
+        except Exception as e:
+            print(f"An error occurred while fetching from Vercel KV: {e}")
 
-    days_back = 14 # Look at activities from the last 14 days
+    """days_back = 14 # Look at activities from the last 14 days
     start_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_back)
     after_timestamp = int(start_date.timestamp())
 
@@ -152,11 +213,13 @@ def main():
             leaderboard[name] += score
 
     # Format for JSON output
-    leaderboard_list = [{"name": name, "score": round(score, 1)} for name, score in leaderboard.items()]
+    leaderboard_list = [{"name": name, "score": round(score, 1)} for name, score in leaderboard.items()]"""
+    
+    score_board_list = [{"name": name, "score": round(score,1)} for name, score in score_board.items()]
 
     final_data = {
         "lastUpdated": datetime.now().isoformat(),
-        "leaderboard": leaderboard_list
+        "leaderboard": score_board_list
     }
 
     # 5. Write to scores.json

@@ -68,7 +68,7 @@ class handler(BaseHTTPRequestHandler):
 
         # Triggering both workflows
         new_user_data = { athlete_id: { "access_token": token_data["access_token"], "refresh_token": token_data["refresh_token"], "expires_at": token_data["expires_at"], "name": athlete_name } }
-        hr_data = { "athlete_id": athlete_id, "name": athlete_name, "hr_values": [resting_hr, max_hr] }
+        hr_data = { athlete_id:{ "name": athlete_name, "hr_values": [resting_hr, max_hr] }}
 
         self._trigger_workflow("add_new_user.yml", {"newUserJson": json.dumps(new_user_data)})
         self._trigger_workflow("add_hr_data.yml", {"newHrData": json.dumps(hr_data)})

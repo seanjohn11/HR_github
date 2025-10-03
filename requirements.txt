@@ -2,5 +2,6 @@ requests
 pandas
 python-dateutil
 flask
+pydantic
 vercel-kv
 qstash

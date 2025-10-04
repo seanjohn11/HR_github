@@ -16,6 +16,35 @@
         .leaderboard-entry:hover {
             transform: scale(1.02);
         }
+        
+        #join-button {
+    	background-image: url('./images/btn_strava_connect_with_orange.png');
+    	background-size: contain; /* Or 'cover'. 'Contain' fits the whole image inside */
+    	background-repeat: no-repeat;
+    	background-position: center;
+    	background-color: transparent;
+    	border: none;
+    	width: 200px;  /* Example width */
+    	height: 50px; /* Example height */
+    	cursor: pointer;
+	}
+	#join-button:hover {
+    	background-image: url('./images/btn_strava_connect_with_white.png');
+	}
+	#submit-button {
+    	background-image: url('./images/btn_strava_connect_with_orange.png');
+    	background-size: contain; /* Or 'cover'. 'Contain' fits the whole image inside */
+    	background-repeat: no-repeat;
+    	background-position: center;
+    	background-color: transparent;
+    	border: none;
+    	width: 200px;  /* Example width */
+    	height: 50px; /* Example height */
+    	cursor: pointer;
+	}
+	#submit-button:hover {
+    	background-image: url('./images/btn_strava_connect_with_white.png');
+	}
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
@@ -23,7 +52,7 @@
     <div class="container mx-auto p-4 max-w-2xl">
         <header class="text-center mb-8">
             <h1 class="text-4xl md:text-5xl font-bold text-cyan-400">Family Fitness Challenge</h1>
-            <p class="text-gray-400 mt-2">Powered by Strava</p>
+            <img src="./images/api_logo_pwrdBy_strava_horiz_orange.png" alt="Powered by Strava" class="block mx-auto mt-2 h-7">
         </header>
 
         <!-- Success/Error Messages -->
@@ -57,7 +86,7 @@
         
         <!-- Join Challenge Section -->
         <div class="mt-8 text-center">
-            <button id="join-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Join Here</button>
+            <button id="join-button" class=""></button>
 
             <form id="join-form" class="hidden mt-6 bg-gray-800 p-6 rounded-lg shadow-xl max-w-md mx-auto text-left space-y-4">
                  <div>
@@ -72,7 +101,7 @@
                     <label for="max_hr" class="block text-sm font-medium text-gray-300">Max Heart Rate</label>
                     <input type="number" id="max_hr" name="max_hr" required class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-cyan-500 focus:border-cyan-500">
                 </div>
-                <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Authorize with Strava</button>
+                <button id="submit-button" class="block mx-auto"></button>
             </form>
         </div>
 

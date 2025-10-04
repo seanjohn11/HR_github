@@ -94,10 +94,18 @@ def main():
         return
     
     score_board = {}
+    per_zone = {}
     
     for athlete_id in users:
         name = users[athlete_id]['name']
         score_board[name] = 0
+        per_zone[name] = {'Z1':0,"Z2":0,"Z3":0,"Z4":0,"Z5":0}
+        zone1 = 0
+        zone2 = 0
+        zone3 = 0
+        zone4 = 0
+        zone5 = 0
+        tot_time = 0
         try:
             # hgetall retrieves all fields (activity IDs) and values (activity data)
             activities = KV.hgetall(athlete_id)
@@ -123,6 +131,15 @@ def main():
                     # Calculate the score for this single activity
                     activity_score = calculate_activity_score(activity_data)
                     total_score_all_activities += activity_score
+                    
+                    # Update time spent in zones
+                    zone1 += activity_data["z1"]
+                    zone2 += activity_data["z2"]
+                    zone3 += activity_data["z3"]
+                    zone4 += activity_data["z4"]
+                    zone5 += activity_data["z5"]
+                    tot_time += activity_data["tot_time"]
+                    
     
                     print("\n--- Results (from stored data) ---")
                     for i in range(1, 6):
@@ -138,6 +155,16 @@ def main():
                     print(f"An error occurred while analyzing activity: {e}")
             
             #print(f"\n{'='*40}\n🏁 Grand Total Score for Athlete {athlete_id}: {total_score_all_activities:.2f} points\n{'='*40}")
+            zone1 /= tot_time
+            zone2 /= tot_time
+            zone3 /= tot_time
+            zone4 /= tot_time
+            zone5 /= tot_time
+            per_zone[name]['Z1'] = zone1*100
+            per_zone[name]['Z2'] = zone2*100
+            per_zone[name]['Z3'] = zone3*100
+            per_zone[name]['Z4'] = zone4*100
+            per_zone[name]['Z5'] = zone5*100
             score_board[name] = total_score_all_activities
     
         except Exception as e:
@@ -215,7 +242,7 @@ def main():
     # Format for JSON output
     leaderboard_list = [{"name": name, "score": round(score, 1)} for name, score in leaderboard.items()]"""
     
-    score_board_list = [{"name": name, "score": round(score,1)} for name, score in score_board.items()]
+    score_board_list = [{"name": name, "score": round(score_board[name],1), "zones" : per_zone[name]} for name, score in score_board.items()]
 
     final_data = {
         "lastUpdated": datetime.now().isoformat(),

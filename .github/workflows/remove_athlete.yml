@@ -1,0 +1,37 @@
+name: Remove Athlete
+
+on:
+  # This makes the workflow triggerable via a POST request from Vercel
+  workflow_dispatch:
+    inputs:
+      # We define an input to securely receive the new user's JSON data
+      AthleteId:
+        description: 'String of athlete id to delete'
+        required: true
+
+jobs:
+  add-user:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Run script to add user to secrets
+        env:
+          # The full, existing list of users is securely injected here
+          EXISTING_USERS_JSON: ${{ secrets.STRAVA_USERS }}
+          # The PAT is injected to give this script write access to secrets
+          GH_TOKEN: ${{ secrets.PAT_FOR_SECRETS }}
+          # The athlete id to be removed, passed from Vercel, is available here
+          ATHLETE_ID: ${{ github.event.inputs.AthleteId }}
+          # The full, existing list of hr data is securely injected here
+          EXISTING_HR_DATA: ${{ secrets.HR_DATA }}
+          
+        run: |
+          python scripts/remove_athlete.py
+

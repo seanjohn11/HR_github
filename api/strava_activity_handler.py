@@ -10,9 +10,15 @@ import json
 from flask import Flask, request
 from vercel_kv import KV
 import qstash
+import requests
 from .strava_functions import activity_processing
 
 QSTASH_TOKEN = os.environ.get('QSTASH_TOKEN')
+
+
+PAT_FOR_SECRETS = os.environ.get("PAT_FOR_SECRETS")
+REPO_OWNER = os.environ.get("GITHUB_REPO_OWNER")
+REPO_NAME = os.environ.get("GITHUB_REPO_NAME")
 
 # Initialize the QStash client to send messages
 qstash_client = qstash.QStash(QSTASH_TOKEN)
@@ -88,6 +94,7 @@ def process_queued_event():
                 print("Athlete deauthorized. Deleting all their data...")
                 KV.delete(athlete_key)
                 # Also need to delete all secrets that were associated with athlete
+                _trigger_workflow('remove_athlete.yml', {'AthleteId': str(object_id)})
                 
                 print("✅ Successfully deleted all data for athlete")
 
@@ -98,3 +105,24 @@ def process_queued_event():
 
     # Return 200 OK to QStash to confirm the job is done.
     return 'Processing Complete', 200
+
+def _trigger_workflow(workflow_name, inputs):
+    url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/actions/workflows/{workflow_name}/dispatches"
+    headers = { "Accept": "application/vnd.github.v3+json", "Authorization": f"token {PAT_FOR_SECRETS}" }
+    data = { "ref": "main", "inputs": inputs }
+    response = requests.post(url, headers=headers, json=data)
+
+    # --- MODIFIED SECTION ---
+    # Check the status code. 204 is success. Anything else is an error.
+    if response.status_code == 204:
+        print(f"Successfully triggered {workflow_name}: Status 204 (No Content)")
+    else:
+        print(f"--- ERROR Triggering {workflow_name}: Status {response.status_code} ---")
+        try:
+            # Try to print the detailed JSON error message from GitHub
+            print(f"GitHub API Error Response: {response.json()}")
+        except json.JSONDecodeError:
+            # If the response isn't JSON, print the raw text
+            print(f"GitHub API Raw Error Response: {response.text}")
+    
+    return response

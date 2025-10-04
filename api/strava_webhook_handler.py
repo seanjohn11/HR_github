@@ -1,5 +1,5 @@
 import os
-import json
+#import json
 from flask import Flask, request, jsonify
 #from vercel_kv import KV
 import qstash
@@ -8,6 +8,11 @@ import qstash
 VERIFY_TOKEN = os.environ.get('STRAVA_VERIFY_TOKEN')
 
 QSTASH_TOKEN = os.environ.get('QSTASH_TOKEN')
+
+
+PAT_FOR_SECRETS = os.environ.get("PAT_FOR_SECRETS")
+REPO_OWNER = os.environ.get("GITHUB_REPO_OWNER")
+REPO_NAME = os.environ.get("GITHUB_REPO_NAME")
 
 # Initialize the QStash client to send messages
 qstash_client = qstash.QStash(QSTASH_TOKEN)
@@ -52,7 +57,7 @@ def handle_event_reception():
         processing_url = f"{base_url}/api/strava_activity_handler"
 
         # Publish the event to QStash for background processing
-        qstash_client.publish_json(
+        qstash_client.message.publish_json(
             url=processing_url,
             body=event_data,
         )

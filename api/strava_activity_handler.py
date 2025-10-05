@@ -27,7 +27,7 @@ QSTASH_NEXT = os.environ.get("QSTASH_NEXT_SIGNING_KEY")
 
 receiver = qstash.Receiver(
     current_signing_key=QSTASH_CURRENT,
-    new_signing_key=QSTASH_NEXT,
+    next_signing_key=QSTASH_NEXT,
 )
 
 # --- Flask App Initialization ---

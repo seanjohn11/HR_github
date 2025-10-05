@@ -101,7 +101,7 @@ def process_queued_event():
                 print("Athlete deauthorized. Deleting all their data...")
                 KV.delete(athlete_key)
                 # Also need to delete all secrets that were associated with athlete
-                _trigger_workflow('remove_athlete.yml', {'AthleteId': str(object_id)})
+                remove_athlete_secrets(str(object_id))
                 
                 print("✅ Successfully deleted all data for athlete")
 
@@ -113,23 +113,59 @@ def process_queued_event():
     # Return 200 OK to QStash to confirm the job is done.
     return 'Processing Complete', 200
 
-def _trigger_workflow(workflow_name, inputs):
-    url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/actions/workflows/{workflow_name}/dispatches"
-    headers = { "Accept": "application/vnd.github.v3+json", "Authorization": f"token {PAT_FOR_SECRETS}" }
-    data = { "ref": "main", "inputs": inputs }
-    response = requests.post(url, headers=headers, json=data)
-
-    # --- MODIFIED SECTION ---
-    # Check the status code. 204 is success. Anything else is an error.
-    if response.status_code == 204:
-        print(f"Successfully triggered {workflow_name}: Status 204 (No Content)")
-    else:
-        print(f"--- ERROR Triggering {workflow_name}: Status {response.status_code} ---")
-        try:
-            # Try to print the detailed JSON error message from GitHub
-            print(f"GitHub API Error Response: {response.json()}")
-        except json.JSONDecodeError:
-            # If the response isn't JSON, print the raw text
-            print(f"GitHub API Raw Error Response: {response.text}")
+def remove_athlete_secrets(athlete_id):
+    strava_users_str = os.environ.get("STRAVA_USERS")
+    strava_users_id = os.environ.get("STRAVA_USERS_ID")
+    hr_data_str = os.environ.get("HR_DATA")
+    hr_data_id = os.environ.get("HR_DATA_ID")
+    existing_users_data = json.loads(strava_users_str)
+    print(f"Successfully loaded {len(existing_users_data)} existing users.")
+    existing_hr_data = json.loads(hr_data_str)
+    print(f"Successfully loaded {len(existing_hr_data)} existing HR vals")
+    PROJECT_ID = os.environ.get("PROJECT_ID)")
+    VERCEL_ACCESS_TOKEN = os.environ.get("VERCELL_ACCESS_TOKEN")
     
-    return response
+    
+    del existing_users_data[athlete_id]
+    del existing_hr_data[athlete_id]
+    print(f"Total users after removal: {len(existing_users_data)}")
+    print(f"Total HR vals after removal: {len(existing_hr_data)}")
+    
+    
+    url_users = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env/{strava_users_id}"
+    url_hr = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env/{hr_data_id}"
+
+    headers = {
+        "Authorization": f"Bearer {VERCEL_ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    
+    
+    try:
+        # --- Update STRAVA_USERS Secret ---
+        payload_users = {
+            "value": json.dumps(existing_users_data),
+            "target": ["production", "preview", "development"]
+        }
+        print("Updating 'STRAVA_USERS' secret...")
+        create_response_users = requests.patch(url_users, headers=headers, json=payload_users)
+        create_response_users.raise_for_status()
+        print("Secret STRAVA_USERS updated successfully.")
+
+        # --- Update HR_DATA Secret (repeat the process) ---
+        
+        payload_hr = {
+            "value": json.dumps(existing_hr_data),
+            "target": ["production", "preview", "development"]
+        }
+        print("Creating/updating 'HR_DATA' secret...")
+        create_response_hr = requests.patch(url_hr, headers=headers, json=payload_hr)
+        create_response_hr.raise_for_status()
+        print("Secret 'HR_DATA' updated successfully.")
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Error during Vercel secret update: {e}")
+        if e.response is not None:
+            print(f"Response status: {e.response.status_code}")
+            print(f"Response content: {e.response.text}")
+        raise e

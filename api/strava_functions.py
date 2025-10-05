@@ -68,9 +68,9 @@ def activity_handler(athlete_id, activity_id):
     """Pulls data from a specific activity from Strava"""
     # Get all secret user data
     try:
-        client_id = os.environ["STRAVA_CLIENT_ID"]
-        client_secret = os.environ["STRAVA_CLIENT_SECRET"]
-        users = json.loads(os.environ["STRAVA_USERS"])
+        client_id = os.environ.get("STRAVA_CLIENT_ID")
+        client_secret = os.environ.get("STRAVA_CLIENT_SECRET")
+        users = json.loads(os.environ.get("STRAVA_USERS"))
         #hr_data_config = json.loads(os.environ["HR_DATA"])
     except (KeyError, json.JSONDecodeError) as e:
         print(f"Error: Missing or invalid environment variable. Please check your GitHub Secrets. Details: {e}")

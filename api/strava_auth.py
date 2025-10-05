@@ -108,12 +108,18 @@ def update_secrets(user_data, hr_data):
     SECRET_KEY_TO_CHANGE = "STRAVA_USERS"
     OTHER_KEY_TO_CHANGE = "HR_DATA"
     #NEW_SECRET_VALUE = "your_new_secret_value"
-    old_strava_users = os.environ.get("STRAVA_USERS","{}")
-    existing_users_data = json.loads(old_strava_users)
-    print(f"Successfully loaded {len(existing_users_data)} existing users.")
-    old_hr_data = os.environ.get("HR_DATA","{}")
-    existing_hr_data = json.loads(old_hr_data)
-    print(f"Successfully loaded {len(existing_hr_data)} hr data users")
+    try:
+        old_strava_users = os.environ.get("STRAVA_USERS", "{}")
+        existing_users_data = json.loads(old_strava_users)
+        print(f"Successfully loaded {len(existing_users_data)} existing users.")
+        
+        old_hr_data = os.environ.get("HR_DATA", "{}")
+        existing_hr_data = json.loads(old_hr_data)
+        print(f"Successfully loaded {len(existing_hr_data)} hr data users")
+    except json.JSONDecodeError:
+        print("Error: Malformed JSON found in STRAVA_USERS or HR_DATA env variables. Resetting to empty.")
+        existing_users_data = {}
+        existing_hr_data = {}
     if not VERCEL_ACCESS_TOKEN:
         print("Error: VERCEL_ACCESS_TOKEN environment variable not set.")
         exit(1)
@@ -132,14 +138,14 @@ def update_secrets(user_data, hr_data):
     }
     payload = {
         "key": SECRET_KEY_TO_CHANGE,
-        "value": updated_users_data,
+        "value": json.dumps(updated_users_data),
         "type": "secret",  # Or "encrypted" for sensitive variables
         "target": ["development", "preview", "production"] # Specify target environments
     }
     
     payload2 = {
         "key": OTHER_KEY_TO_CHANGE,
-        "value": updated_hr_data,
+        "value": json.dumps(updated_hr_data),
         "type": "secret",  # Or "encrypted" for sensitive variables
         "target": ["development", "preview", "production"] # Specify target environments
     }

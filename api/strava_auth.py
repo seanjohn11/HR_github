@@ -70,14 +70,16 @@ class handler(BaseHTTPRequestHandler):
         new_user_data = { athlete_id: { "access_token": token_data["access_token"], "refresh_token": token_data["refresh_token"], "expires_at": token_data["expires_at"], "name": athlete_name } }
         hr_data = { athlete_id:{ "name": athlete_name, "hr_values": [resting_hr, max_hr] }}
 
-        self._trigger_workflow("add_new_user.yml", {"newUserJson": json.dumps(new_user_data)})
-        self._trigger_workflow("add_hr_data.yml", {"newHrData": json.dumps(hr_data)})
+        #self._trigger_workflow("add_new_user.yml", {"newUserJson": json.dumps(new_user_data)})
+        #self._trigger_workflow("add_hr_data.yml", {"newHrData": json.dumps(hr_data)})
+        
+        update_secrets(new_user_data,hr_data)
         
         self.send_response(302)
         self.send_header('Location', f'{base_url}/?status=success')
         self.end_headers()
 
-    def _trigger_workflow(self, workflow_name, inputs):
+    """def _trigger_workflow(self, workflow_name, inputs):
         url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/actions/workflows/{workflow_name}/dispatches"
         headers = { "Accept": "application/vnd.github.v3+json", "Authorization": f"token {PAT_FOR_SECRETS}" }
         data = { "ref": "main", "inputs": inputs }
@@ -96,6 +98,67 @@ class handler(BaseHTTPRequestHandler):
                 # If the response isn't JSON, print the raw text
                 print(f"GitHub API Raw Error Response: {response.text}")
         
-        return response
+        return response"""
+    
+
+def update_secrets(user_data, hr_data):
+    # Replace with your actual values
+    VERCEL_ACCESS_TOKEN = os.environ.get("VERCEL_ACCESS_TOKEN") # Securely store your token
+    PROJECT_ID = os.environ.get("PROJECT_ID")
+    SECRET_KEY_TO_CHANGE = "STRAVA_USERS"
+    OTHER_KEY_TO_CHANGE = "HR_DATA"
+    #NEW_SECRET_VALUE = "your_new_secret_value"
+    old_strava_users = os.environ.get("STRAVA_USERS","{}")
+    existing_users_data = json.loads(old_strava_users)
+    print(f"Successfully loaded {len(existing_users_data)} existing users.")
+    old_hr_data = os.environ.get("HR_DATA","{}")
+    existing_hr_data = json.loads(old_hr_data)
+    print(f"Successfully loaded {len(existing_hr_data)} hr data users")
+    if not VERCEL_ACCESS_TOKEN:
+        print("Error: VERCEL_ACCESS_TOKEN environment variable not set.")
+        exit(1)
+        
+    updated_users_data = {**existing_users_data, **user_data}
+    print(f"Total users after merging: {len(updated_users_data)}")
+    
+    updated_hr_data = {**existing_hr_data, **hr_data}
+    print(f"Total HR data users after merging: {len(updated_hr_data)}")
+    
+    
+    url = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env"
+    headers = {
+        "Authorization": f"Bearer {VERCEL_ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "key": SECRET_KEY_TO_CHANGE,
+        "value": updated_users_data,
+        "type": "secret",  # Or "encrypted" for sensitive variables
+        "target": ["development", "preview", "production"] # Specify target environments
+    }
+    
+    payload2 = {
+        "key": OTHER_KEY_TO_CHANGE,
+        "value": updated_hr_data,
+        "type": "secret",  # Or "encrypted" for sensitive variables
+        "target": ["development", "preview", "production"] # Specify target environments
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+    
+        print(f"Secret '{SECRET_KEY_TO_CHANGE}' updated successfully on Vercel.")
+        print(response.json()) # Optional: Print the API response
+        
+        response = requests.post(url,headers=headers,json=payload2)
+        response.raise_for_status()
+        print(f"Secret '{OTHER_KEY_TO_CHANGE}' updated successfully on Vercel.")
+        print(response.json()) # Optional: Print the API response
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Error updating Vercel secret: {e}")
+        if response is not None:
+            print(f"Response content: {response.text}")
 
 

@@ -131,40 +131,57 @@ def update_secrets(user_data, hr_data):
     print(f"Total HR data users after merging: {len(updated_hr_data)}")
     
     
-    url = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env"
+    # Define API URLs
+    # NOTE: The DELETE URL includes the secret's name (key), the CREATE URL does not.
+    delete_url_users = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env/{SECRET_KEY_TO_CHANGE}"
+    delete_url_hr = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env/{OTHER_KEY_TO_CHANGE}"
+    create_url = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env"
+
     headers = {
         "Authorization": f"Bearer {VERCEL_ACCESS_TOKEN}",
         "Content-Type": "application/json"
     }
-    payload = {
-        "key": SECRET_KEY_TO_CHANGE,
-        "value": json.dumps(updated_users_data),
-        "type": "encrypted",  # Or "encrypted" for sensitive variables
-        "target": ["development", "preview", "production"] # Specify target environments
-    }
-    
-    payload2 = {
-        "key": OTHER_KEY_TO_CHANGE,
-        "value": json.dumps(updated_hr_data),
-        "type": "encrypted",  # Or "encrypted" for sensitive variables
-        "target": ["development", "preview", "production"] # Specify target environments
-    }
     
     try:
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()  # Raise an exception for HTTP errors
-    
-        print(f"Secret '{SECRET_KEY_TO_CHANGE}' updated successfully on Vercel.")
-        print(response.json()) # Optional: Print the API response
+        # --- Update STRAVA_USERS Secret ---
+        # 1. Delete the old secret. A 404 error is okay, it means the secret didn't exist.
+        print(f"Attempting to delete old '{SECRET_KEY_TO_CHANGE}' secret...")
+        del_response_users = requests.delete(delete_url_users, headers=headers)
+        if del_response_users.status_code not in [200, 404]:
+             del_response_users.raise_for_status() # Raise an error for other statuses
+        print(f"Deletion step for '{SECRET_KEY_TO_CHANGE}' complete.")
+
+        # 2. Create the new secret with the updated value.
+        payload_users = {
+            "key": SECRET_KEY_TO_CHANGE, "value": json.dumps(updated_users_data),
+            "type": "encrypted", "target": ["production", "preview", "development"]
+        }
+        print(f"Creating/updating '{SECRET_KEY_TO_CHANGE}' secret...")
+        create_response_users = requests.post(create_url, headers=headers, json=payload_users)
+        create_response_users.raise_for_status()
+        print(f"Secret '{SECRET_KEY_TO_CHANGE}' updated successfully.")
+
+        # --- Update HR_DATA Secret (repeat the process) ---
+        print(f"Attempting to delete old '{OTHER_KEY_TO_CHANGE}' secret...")
+        del_response_hr = requests.delete(delete_url_hr, headers=headers)
+        if del_response_hr.status_code not in [200, 404]:
+            del_response_hr.raise_for_status()
+        print(f"Deletion step for '{OTHER_KEY_TO_CHANGE}' complete.")
         
-        response = requests.post(url,headers=headers,json=payload2)
-        response.raise_for_status()
-        print(f"Secret '{OTHER_KEY_TO_CHANGE}' updated successfully on Vercel.")
-        print(response.json()) # Optional: Print the API response
+        payload_hr = {
+            "key": OTHER_KEY_TO_CHANGE, "value": json.dumps(updated_hr_data),
+            "type": "encrypted", "target": ["production", "preview", "development"]
+        }
+        print(f"Creating/updating '{OTHER_KEY_TO_CHANGE}' secret...")
+        create_response_hr = requests.post(create_url, headers=headers, json=payload_hr)
+        create_response_hr.raise_for_status()
+        print(f"Secret '{OTHER_KEY_TO_CHANGE}' updated successfully.")
         
     except requests.exceptions.RequestException as e:
-        print(f"Error updating Vercel secret: {e}")
-        if response is not None:
-            print(f"Response content: {response.text}")
+        print(f"Error during Vercel secret update: {e}")
+        if e.response is not None:
+            print(f"Response status: {e.response.status_code}")
+            print(f"Response content: {e.response.text}")
+        raise e
 
 

@@ -19,9 +19,15 @@ QSTASH_TOKEN = os.environ.get('QSTASH_TOKEN')
 PAT_FOR_SECRETS = os.environ.get("PAT_FOR_SECRETS")
 REPO_OWNER = os.environ.get("GITHUB_REPO_OWNER")
 REPO_NAME = os.environ.get("GITHUB_REPO_NAME")
+QSTASH_CURRENT = os.environ("QSTASH_CURRENT_SIGNING_KEY")
+QSTASH_NEXT = os.environ("QSTASH_NEXT_SIGNING_KEY")
 
 # Initialize the QStash client to send messages
-qstash_client = qstash.QStash(QSTASH_TOKEN)
+#qstash_client = qstash.QStash(QSTASH_TOKEN)
+
+receiver = qstash.Receiver(
+    current_signing_key=QSTASH_CURRENT,
+    new_signing_key=QSTASH_NEXT)
 
 # --- Flask App Initialization ---
 app = Flask(__name__)
@@ -41,10 +47,10 @@ def process_queued_event():
         return "Signature missing", 401
 
     try:
-        qstash.verify(
+        receiver.verify(
             signature=signature,
             body=request.get_data(as_text=True),
-            url=f"https://{os.environ.get('VERCEL_URL')}{request.path}"
+            url="https://hr-github.vercel.app/api/strava_activity_handler"
         )
         print("✅ QStash signature verified.")
     except Exception as e:

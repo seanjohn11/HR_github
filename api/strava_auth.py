@@ -121,15 +121,19 @@ def update_secrets(user_data, hr_data):
         strava_users_id = os.environ.get("STRAVA_USERS_ID")
         existing_users_data = json.loads(old_strava_users)
         print(f"Successfully loaded {len(existing_users_data)} existing users.")
+    except json.JSONDecodeError:
+        print("Error: Malformed JSON found in STRAVA_USERS env variables. Resetting to empty.")
+        existing_users_data = {}
         
+    try:
         old_hr_data = os.environ.get("HR_DATA", "{}")
         hr_data_id = os.environ.get("HR_DATA_ID")
         existing_hr_data = json.loads(old_hr_data)
         print(f"Successfully loaded {len(existing_hr_data)} hr data users")
     except json.JSONDecodeError:
-        print("Error: Malformed JSON found in STRAVA_USERS or HR_DATA env variables. Resetting to empty.")
-        existing_users_data = {}
+        print("Error: Malformed JSON found in HR_DATA env variables. Resetting to empty.")
         existing_hr_data = {}
+        
     if not VERCEL_ACCESS_TOKEN:
         print("Error: VERCEL_ACCESS_TOKEN environment variable not set.")
         exit(1)

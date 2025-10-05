@@ -110,10 +110,12 @@ def update_secrets(user_data, hr_data):
     #NEW_SECRET_VALUE = "your_new_secret_value"
     try:
         old_strava_users = os.environ.get("STRAVA_USERS", "{}")
+        strava_users_id = os.environ.get("STRAVA_USERS_ID")
         existing_users_data = json.loads(old_strava_users)
         print(f"Successfully loaded {len(existing_users_data)} existing users.")
         
         old_hr_data = os.environ.get("HR_DATA", "{}")
+        hr_data_id = os.environ.get("HR_DATA_ID")
         existing_hr_data = json.loads(old_hr_data)
         print(f"Successfully loaded {len(existing_hr_data)} hr data users")
     except json.JSONDecodeError:
@@ -133,8 +135,8 @@ def update_secrets(user_data, hr_data):
     
     # Define API URLs
     # NOTE: The DELETE URL includes the secret's name (key), the CREATE URL does not.
-    url_users = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env/{SECRET_KEY_TO_CHANGE}"
-    url_hr = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env/{OTHER_KEY_TO_CHANGE}"
+    url_users = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env/{strava_users_id}"
+    url_hr = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env/{hr_data_id}"
     #create_url = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env"
 
     headers = {

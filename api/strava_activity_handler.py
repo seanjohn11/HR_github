@@ -19,8 +19,8 @@ QSTASH_TOKEN = os.environ.get('QSTASH_TOKEN')
 PAT_FOR_SECRETS = os.environ.get("PAT_FOR_SECRETS")
 REPO_OWNER = os.environ.get("GITHUB_REPO_OWNER")
 REPO_NAME = os.environ.get("GITHUB_REPO_NAME")
-QSTASH_CURRENT = os.environ("QSTASH_CURRENT_SIGNING_KEY")
-QSTASH_NEXT = os.environ("QSTASH_NEXT_SIGNING_KEY")
+QSTASH_CURRENT = os.environ.get("QSTASH_CURRENT_SIGNING_KEY")
+QSTASH_NEXT = os.environ.get("QSTASH_NEXT_SIGNING_KEY")
 
 # Initialize the QStash client to send messages
 #qstash_client = qstash.QStash(QSTASH_TOKEN)

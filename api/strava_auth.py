@@ -73,7 +73,15 @@ class handler(BaseHTTPRequestHandler):
         #self._trigger_workflow("add_new_user.yml", {"newUserJson": json.dumps(new_user_data)})
         #self._trigger_workflow("add_hr_data.yml", {"newHrData": json.dumps(hr_data)})
         
-        update_secrets(new_user_data,hr_data)
+        try:
+            update_secrets(new_user_data, hr_data)
+        except Exception as e:
+            # This block will now catch any failure from the update_secrets function
+            print(f"Failed to update Vercel secrets. Error: {e}")
+            self.send_response(302)
+            self.send_header('Location', f'{base_url}/?status=error')
+            self.end_headers()
+            return
         
         self.send_response(302)
         self.send_header('Location', f'{base_url}/?status=success')
@@ -155,8 +163,8 @@ def update_secrets(user_data, hr_data):
 
         # 2. Create the new secret with the updated value.
         payload_users = {
-            "key": SECRET_KEY_TO_CHANGE, "value": json.dumps(updated_users_data),
-            "type": "encrypted", "target": ["production", "preview", "development"]
+            "value": json.dumps(updated_users_data),
+            "target": ["production", "preview", "development"]
         }
         print(f"Creating/updating '{SECRET_KEY_TO_CHANGE}' secret...")
         create_response_users = requests.patch(url_users, headers=headers, json=payload_users)
@@ -171,8 +179,8 @@ def update_secrets(user_data, hr_data):
         print(f"Deletion step for '{OTHER_KEY_TO_CHANGE}' complete.")"""
         
         payload_hr = {
-            "key": OTHER_KEY_TO_CHANGE, "value": json.dumps(updated_hr_data),
-            "type": "encrypted", "target": ["production", "preview", "development"]
+            "value": json.dumps(updated_hr_data),
+            "target": ["production", "preview", "development"]
         }
         print(f"Creating/updating '{OTHER_KEY_TO_CHANGE}' secret...")
         create_response_hr = requests.patch(url_hr, headers=headers, json=payload_hr)

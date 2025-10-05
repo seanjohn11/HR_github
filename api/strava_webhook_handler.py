@@ -54,7 +54,8 @@ def handle_event_reception():
     try:
         # Construct the full URL for the processing endpoint
         base_url = f"https://{os.environ.get('VERCEL_URL')}"
-        processing_url = f"{base_url}/api/strava_activity_handler"
+        #processing_url = f"{base_url}/api/strava_activity_handler"
+        processing_url = "https://hr-github.vercel.app/api/strava_activity_handler"
 
         # Publish the event to QStash for background processing
         qstash_client.message.publish_json(

@@ -146,7 +146,7 @@ def update_secrets(user_data, hr_data):
     payload2 = {
         "key": OTHER_KEY_TO_CHANGE,
         "value": json.dumps(updated_hr_data),
-        "type": "secret",  # Or "encrypted" for sensitive variables
+        "type": "encrypted",  # Or "encrypted" for sensitive variables
         "target": ["development", "preview", "production"] # Specify target environments
     }
     

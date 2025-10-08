@@ -112,7 +112,7 @@ class handler(BaseHTTPRequestHandler):
 
 def update_secrets(user_data, hr_data):
     # Replace with your actual values
-    VERCEL_ACCESS_TOKEN = os.environ.get("VERCEL_ACCESS_TOKEN") # Securely store your token
+    VERCEL_ACCESS_TOKEN = os.environ.get("VERCEL_ACCESS_TOKEN")
     PROJECT_ID = os.environ.get("PROJECT_ID")
     SECRET_KEY_TO_CHANGE = "STRAVA_USERS"
     OTHER_KEY_TO_CHANGE = "HR_DATA"

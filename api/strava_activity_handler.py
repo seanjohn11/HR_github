@@ -64,7 +64,7 @@ def process_queued_event():
     # --- Event Logic with Nested Hash Structure ---
     event_data = request.get_json()
     print("Processing event data:")
-    print(json.dumps(event_data, indent=2))
+    #print(json.dumps(event_data, indent=2))
 
     object_type = event_data.get('object_type')
     aspect_type = event_data.get('aspect_type')

@@ -9,11 +9,13 @@ Created on Tue Sep 30 22:45:37 2025
 import os
 import json
 import time
+import base64
 import requests
-import subprocess
 import math
-#from datetime import datetime, timedelta
+from datetime import date, timedelta, datetime
 from dateutil import parser
+from upstash_redis import Redis
+from collections import defaultdict
 
 def token_expired(expires_at):
     """Check if the Strava token is expired."""
@@ -45,22 +47,43 @@ def refresh_strava_token(client_id, client_secret, user_creds):
     existing_users_data = json.loads(existing_users_str)
     
     updated_users_data = {**existing_users_data, **user_creds}
-
-    # Convert the final merged dictionary back to a JSON string
-    updated_users_json_str = json.dumps(updated_users_data)
     
-    process = subprocess.run(
-        ['gh', 'secret', 'set', 'STRAVA_USERS', '--body', updated_users_json_str],
-        capture_output=True,
-        text=True
-    )
+    VERCEL_ACCESS_TOKEN = os.environ.get("VERCEL_ACCESS_TOKEN") # Securely store your token
+    PROJECT_ID = os.environ.get("PROJECT_ID")
+    SECRET_KEY_TO_CHANGE = "STRAVA_USERS"
+    strava_users_id = os.environ.get("STRAVA_USERS_ID")
+    url_users = f"https://api.vercel.com/v9/projects/{PROJECT_ID}/env/{strava_users_id}"
+    headers = {
+        "Authorization": f"Bearer {VERCEL_ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    try:
+        # --- Update STRAVA_USERS Secret ---
+        # 1. Delete the old secret. A 404 error is okay, it means the secret didn't exist.
+        """print(f"Attempting to delete old '{SECRET_KEY_TO_CHANGE}' secret...")
+        del_response_users = requests.delete(delete_url_users, headers=headers)
+        if del_response_users.status_code not in [200, 404]:
+             del_response_users.raise_for_status() # Raise an error for other statuses
+        print(f"Deletion step for '{SECRET_KEY_TO_CHANGE}' complete.")"""
 
-    if process.returncode == 0:
-        print("✅ Successfully updated the STRAVA_USERS secret.")
-    else:
-        print("❌ Error updating secret.")
-        #print("Stderr:", process.stderr)
-        #exit(1) # Exit with an error code to fail the workflow
+        # 2. Create the new secret with the updated value.
+        payload_users = {
+            "value": json.dumps(updated_users_data),
+            "target": ["production", "preview", "development"]
+        }
+        print(f"Creating/updating '{SECRET_KEY_TO_CHANGE}' secret...")
+        create_response_users = requests.patch(url_users, headers=headers, json=payload_users)
+        create_response_users.raise_for_status()
+        print(f"Secret '{SECRET_KEY_TO_CHANGE}' updated successfully.")
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Error during Vercel secret update: {e}")
+        if e.response is not None:
+            print(f"Response status: {e.response.status_code}")
+            print(f"Response content: {e.response.text}")
+        raise e
+
+    
     
     return token_data
 
@@ -170,7 +193,7 @@ def time_in_zones(athlete_id,hr_data, tot_time):
     
     
 def activity_processing(athlete_id, activity_id):
-    """This handls the activity data received from a request and
+    """This handles the activity data received from a request and
     only pulls and saves the hr data needed for the competition"""
     activity_data, hr_data = activity_handler(athlete_id, activity_id)
     print("Successfully pulled activity data")
@@ -186,6 +209,172 @@ def activity_processing(athlete_id, activity_id):
     print("Created KV input")
     return zone_info
     
+def score_processor(daily_scores):
+    """This takes the scores for every day the athlete has worked out.
+    Then it applies a daily limit, extracts the current weeks days, applies
+    a weekly limt to the scores, and finally totals up all the scores.
+    Returns the total score, current week's output"""
+    capped_daily_scores = {}
+    for day, score in daily_scores.items():
+        capped_daily_scores[day] = min(score,50)
     
+    today = date.today()
+    start_date = today - timedelta(days=6)
     
+    current_week_details = {}
+    day_names = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+    
+    for i in range(7):
+        current_day = start_date + timedelta(days=i)
         
+        score = capped_daily_scores.get(current_day,0)
+        day_name = day_names[current_day.weekday()]
+        key = f"{day_name} ({current_day.strftime('%m/%d')})"
+        current_week_details[key] = score
+    
+    raw_weekly_scores = defaultdict(float)
+    
+    for day, score in capped_daily_scores.items():
+        _, week_num, _ = day.isocalendar()
+        raw_weekly_scores[week_num] += score
+        
+    capped_weekly_scores = {}
+    for week, score in raw_weekly_scores.items():
+        capped_weekly_scores[week] = min(score,150)
+        
+    total_score = sum(capped_weekly_scores.values())
+    
+    return total_score, current_week_details
+        
+
+def update_scores():
+    """This handles recreating a scores.json file that is used
+    on the website to produce the scoreboard and other information.
+    It will findout each athlete's total score, current week's production,
+    zone percentages, and sport type frequencies"""
+    # Get necessary secrets and access to all activity data
+    STRAVA_USERS = os.environ.get("STRAVA_USERS")
+    KV_REST_API_URL = os.environ.get("KV_REST_API_URL")
+    KV_REST_API_TOKEN = os.environ.get("KV_REST_API_TOKEN")
+    redis = Redis(url=KV_REST_API_URL,token=KV_REST_API_TOKEN)
+    
+    score_board = {}
+    per_zone = {}
+    last_7 = {}
+    sport_choice = {}
+    
+    for athlete_id in STRAVA_USERS:
+        activities = redis.hgetall(athlete_id)
+        raw_daily_scores = defaultdict(float)
+        zone1 = 0
+        zone2 = 0
+        zone3 = 0
+        zone4 = 0
+        zone5 = 0
+        tot_time = 0
+        athlete_sports = defaultdict(float)
+        for activity, zone_data in activities.items():
+            act_score = 0
+            act_score += zone_data['z1'] + zone_data['z2'] + zone_data['z3'] + 2*(zone_data['z4'] + zone_data['z5'])
+            date_obj = date.fromisoformat(zone_data['date'])
+            raw_daily_scores[date_obj] += act_score 
+            zone1 += zone_data['z1']
+            zone2 += zone_data['z2']
+            zone3 += zone_data['z3']
+            zone4 += zone_data['z4']
+            zone5 += zone_data['z5']
+            tot_time += zone_data['tot_time']
+            athlete_sports[zone_data['sport']] += 1
+        athlete_score, athlete_week = score_processor(raw_daily_scores)
+        athlete_name = STRAVA_USERS[athlete_id]['name']
+        score_board[athlete_name] = athlete_score
+        per_zone[athlete_name] = {"Z1":zone1/tot_time*100, "Z2":zone2/tot_time*100, 
+                                  "Z3":zone3/tot_time*100, "Z4":zone4/tot_time*100, 
+                                  "Z5":zone5/tot_time*100}
+        last_7[athlete_name] = athlete_week
+        sport_choice[athlete_name] = athlete_sports
+    
+    score_board_list = [{"name": name, "score": round(score_board[name],1), "zones" : per_zone[name],
+                         "last_7": last_7[name], "sports": sport_choice[name]} for name, score in score_board.items()]
+
+    final_data = {
+        "lastUpdated": datetime.now().isoformat(),
+        "leaderboard": score_board_list
+    }
+
+    upload_to_github(final_data)
+
+    print("Successfully updated scores.json")
+    
+     
+
+def upload_to_github(data_to_upload):
+    """
+    Creates or updates a file in a GitHub repository.
+    """
+    
+    # --- Configuration ---
+    # Your GitHub username or organization name
+    REPO_OWNER = os.environ.get('GITHUB_REPO_OWNER')
+    # The name of your repository
+    REPO_NAME = os.envrion.get('GITHUB_REPO_NAME')         
+    # The path to the file in your repository
+    FILE_PATH = "scores.json"             
+    # Securely get the token from Vercel's environment variables
+    GITHUB_TOKEN = os.environ.get("PAT_FOR_SECRETS")
+    
+    if not GITHUB_TOKEN:
+        print("Error: GITHUB_API_TOKEN environment variable not set.")
+        return
+
+    # 1. Define API URL and headers
+    url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FILE_PATH}"
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+
+    # 2. Get the current file to get its SHA hash
+    # This is required for updating an existing file
+    sha = None
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status() # Raise an exception for bad status codes (4xx or 5xx)
+        # If the file exists, get its SHA
+        sha = response.json()['sha']
+    except requests.exceptions.HTTPError as err:
+        if err.response.status_code == 404:
+            print(f"File '{FILE_PATH}' not found. A new file will be created.")
+            sha = None # Ensure sha is None if file doesn't exist
+        else:
+            print(f"Error getting file from GitHub: {err}")
+            return
+            
+    # 3. Prepare the data for upload
+    # Convert your Python dictionary to a JSON string
+    content_json_string = json.dumps(data_to_upload, indent=2)
+    # GitHub API requires content to be Base64 encoded
+    content_base64 = base64.b64encode(content_json_string.encode('utf-8')).decode('utf-8')
+
+    # 4. Create the JSON payload for the API request
+    payload = {
+        "message": "Update scores data",  # Your commit message
+        "content": content_base64,
+        "committer": {
+            "name": os.environ.get("PERSONAL_NAME"),
+            "email": os.environ.get("PERSONAL_EMAIL")
+        }
+    }
+    # If we are updating an existing file, we must include its SHA
+    if sha:
+        payload['sha'] = sha
+
+    # 5. Make the PUT request to create or update the file
+    try:
+        response = requests.put(url, headers=headers, data=json.dumps(payload))
+        response.raise_for_status()
+        print(f"Successfully uploaded new version of '{FILE_PATH}' to GitHub.")
+        print(f"Commit SHA: {response.json()['commit']['sha']}")
+    except requests.exceptions.HTTPError as err:
+        print(f"Error uploading file to GitHub: {err}")
+        print(f"Response body: {err.response.text}")       

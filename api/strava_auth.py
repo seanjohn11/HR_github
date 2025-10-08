@@ -74,7 +74,7 @@ class handler(BaseHTTPRequestHandler):
         #self._trigger_workflow("add_hr_data.yml", {"newHrData": json.dumps(hr_data)})
         
         try:
-            update_secrets(new_user_data, hr_data)
+            update_secrets(str(new_user_data), str(hr_data))
         except Exception as e:
             # This block will now catch any failure from the update_secrets function
             print(f"Failed to update Vercel secrets. Error: {e}")

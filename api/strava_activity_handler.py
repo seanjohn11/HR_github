@@ -128,7 +128,7 @@ def remove_athlete_secrets(athlete_id):
     print(f"Successfully loaded {len(existing_users_data)} existing users.")
     existing_hr_data = json.loads(hr_data_str)
     print(f"Successfully loaded {len(existing_hr_data)} existing HR vals")
-    PROJECT_ID = os.environ.get("PROJECT_ID)")
+    PROJECT_ID = os.environ.get("PROJECT_ID")
     VERCEL_ACCESS_TOKEN = os.environ.get("VERCELL_ACCESS_TOKEN")
     
     
@@ -164,7 +164,7 @@ def remove_athlete_secrets(athlete_id):
             "value": json.dumps(existing_hr_data),
             "target": ["production", "preview", "development"]
         }
-        print("Creating/updating 'HR_DATA' secret...")
+        print("Updating 'HR_DATA' secret...")
         create_response_hr = requests.patch(url_hr, headers=headers, json=payload_hr)
         create_response_hr.raise_for_status()
         print("Secret 'HR_DATA' updated successfully.")

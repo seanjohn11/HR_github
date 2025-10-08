@@ -59,6 +59,7 @@ class handler(BaseHTTPRequestHandler):
             token_data = token_response.json()
             athlete_name = token_data.get('athlete', {}).get('firstname', 'NewUser')
             athlete_id = token_data.get('athlete', {}).get('id')
+            athlete_id = str(athlete_id)
         except requests.exceptions.RequestException as e:
             print(f"Failed to get Strava token: {e}")
             self.send_response(302)
@@ -74,7 +75,7 @@ class handler(BaseHTTPRequestHandler):
         #self._trigger_workflow("add_hr_data.yml", {"newHrData": json.dumps(hr_data)})
         
         try:
-            update_secrets(str(new_user_data), str(hr_data))
+            update_secrets(new_user_data, hr_data)
         except Exception as e:
             # This block will now catch any failure from the update_secrets function
             print(f"Failed to update Vercel secrets. Error: {e}")

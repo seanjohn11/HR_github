@@ -201,5 +201,24 @@ def update_secrets(user_data, hr_data):
             print(f"Response status: {e.response.status_code}")
             print(f"Response content: {e.response.text}")
         raise e
+        
+    # Send a request to redeploy vercel and therefore update the secrets
+    hook_url = os.environ.get("REDEPLOY_HOOK")
+    if not hook_url:
+        print("Error: REDEPLOY_HOOK environment variable is not set.")
+        return
 
+    try:
+        print("Triggering Vercel redeployment...")
+        response = requests.post(hook_url)
+        
+        # Check if the request was accepted
+        response.raise_for_status() 
+        
+        print("Successfully triggered redeployment.")
+        # The response body often contains information about the deployment job
+        print("Response:", response.json())
+
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred while triggering redeployment: {e}")
 

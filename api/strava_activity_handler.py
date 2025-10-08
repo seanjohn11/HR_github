@@ -8,7 +8,7 @@ Created on Fri Oct  3 15:47:36 2025
 import os
 import json
 from flask import Flask, request
-from vercel_kv import KV
+from upstash_redis import Redis
 import qstash
 import requests
 from .strava_functions import activity_processing
@@ -21,6 +21,9 @@ REPO_OWNER = os.environ.get("GITHUB_REPO_OWNER")
 REPO_NAME = os.environ.get("GITHUB_REPO_NAME")
 QSTASH_CURRENT = os.environ.get("QSTASH_CURRENT_SIGNING_KEY")
 QSTASH_NEXT = os.environ.get("QSTASH_NEXT_SIGNING_KEY")
+KV_REST_API_URL = os.environ.get("KV_REST_API_URL")
+KV_REST_API_TOKEN = os.environ.get("KV_REST_API_TOKEN")
+
 
 # Initialize the QStash client to send messages
 #qstash_client = qstash.QStash(QSTASH_TOKEN)
@@ -72,6 +75,7 @@ def process_queued_event():
     athlete_key = str(owner_id)
 
     try:
+        redis = Redis(url=KV_REST_API_URL,token=KV_REST_API_TOKEN)
         if object_type == 'activity':
             # The field within the hash is the activity's ID
             activity_field = str(object_id)
@@ -84,13 +88,13 @@ def process_queued_event():
                 # Check if token needs refreshing
                 # Use token and Activity ID to bring in information
                 activity_value = activity_processing(str(owner_id),str(object_id))
-                KV.hset(athlete_key, {activity_field: activity_value})
+                redis.hset(athlete_key, activity_field, str(activity_value))
                 print("✅ Successfully saved activity")
 
             elif aspect_type == 'delete':
                 # For deletes, we remove the specific activity field from the athlete's hash.
                 print("Deleting activity...")
-                KV.hdel(athlete_key, activity_field)
+                redis.hdel(athlete_key, activity_field)
                 print("✅ Successfully deleted activity")
 
         elif object_type == 'athlete':
@@ -99,7 +103,7 @@ def process_queued_event():
                 # This handles the deauthorization event.
                 # We delete the entire hash for the athlete, removing all their data.
                 print("Athlete deauthorized. Deleting all their data...")
-                KV.delete(athlete_key)
+                redis.delete(athlete_key)
                 # Also need to delete all secrets that were associated with athlete
                 remove_athlete_secrets(str(object_id))
                 

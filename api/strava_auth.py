@@ -138,10 +138,14 @@ def update_secrets(user_data, hr_data):
         print("Error: VERCEL_ACCESS_TOKEN environment variable not set.")
         exit(1)
         
-    updated_users_data = {**existing_users_data, **user_data}
+    #updated_users_data = {**existing_users_data, **user_data}
+    updated_users_data = existing_users_data
+    updated_users_data[next(iter(user_data))] = user_data[next(iter(user_data))]
     print(f"Total users after merging: {len(updated_users_data)}")
     
-    updated_hr_data = {**existing_hr_data, **hr_data}
+    #updated_hr_data = {**existing_hr_data, **hr_data}
+    updated_hr_data = existing_hr_data
+    updated_hr_data[next(iter(hr_data))] = hr_data[next(iter(hr_data))]
     print(f"Total HR data users after merging: {len(updated_hr_data)}")
     
     

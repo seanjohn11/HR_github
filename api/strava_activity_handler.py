@@ -129,7 +129,7 @@ def remove_athlete_secrets(athlete_id):
     existing_hr_data = json.loads(hr_data_str)
     print(f"Successfully loaded {len(existing_hr_data)} existing HR vals")
     PROJECT_ID = os.environ.get("PROJECT_ID")
-    VERCEL_ACCESS_TOKEN = os.environ.get("VERCELL_ACCESS_TOKEN")
+    VERCEL_ACCESS_TOKEN = os.environ.get("VERCEL_ACCESS_TOKEN")
     
     
     del existing_users_data[athlete_id]

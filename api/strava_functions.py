@@ -16,12 +16,13 @@ from datetime import date, timedelta, datetime
 from dateutil import parser
 from upstash_redis import Redis
 from collections import defaultdict
+import ast
 
 def token_expired(expires_at):
     """Check if the Strava token is expired."""
     return time.time() >= expires_at
 
-def refresh_strava_token(client_id, client_secret, user_creds):
+def refresh_strava_token(client_id, client_secret, user_creds, athlete_id):
     """Refresh the Strava access token."""
     print("Strava token is expired, refreshing...")
     response = requests.post(
@@ -45,8 +46,9 @@ def refresh_strava_token(client_id, client_secret, user_creds):
     
     existing_users_str = os.environ['STRAVA_USERS']
     existing_users_data = json.loads(existing_users_str)
+    user_creds_with_id = {athlete_id: user_creds}
     
-    updated_users_data = {**existing_users_data, **user_creds}
+    updated_users_data = {**existing_users_data, **user_creds_with_id}
     
     VERCEL_ACCESS_TOKEN = os.environ.get("VERCEL_ACCESS_TOKEN") # Securely store your token
     PROJECT_ID = os.environ.get("PROJECT_ID")
@@ -94,7 +96,7 @@ def activity_handler(athlete_id, activity_id):
     user_creds = users[athlete_id]
     #Verify the token isn't expire. Handle it if it is
     if token_expired(user_creds["expires_at"]):
-        token_data = refresh_strava_token(client_id, client_secret, user_creds)
+        token_data = refresh_strava_token(client_id, client_secret, user_creds, athlete_id)
         user_creds["access_token"] = token_data["access_token"]
         user_creds["refresh_token"] = token_data["refresh_token"]
         user_creds["expires_at"] = token_data["expires_at"]
@@ -268,7 +270,7 @@ def update_scores():
         tot_time = 0
         athlete_sports = defaultdict(float)
         for activity, zone_data in activities.items():
-            zone_data = json.loads(zone_data)
+            zone_data = ast.literal_eval(zone_data)
             act_score = 0
             act_score += zone_data['z1'] + zone_data['z2'] + zone_data['z3'] + 2*(zone_data['z4'] + zone_data['z5'])
             act_score /= 60

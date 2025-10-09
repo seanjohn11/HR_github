@@ -208,6 +208,7 @@ def score_processor(daily_scores):
     Then it applies a daily limit, extracts the current weeks days, applies
     a weekly limt to the scores, and finally totals up all the scores.
     Returns the total score, current week's output"""
+    print("Applying limits to scores")
     capped_daily_scores = {}
     for day, score in daily_scores.items():
         capped_daily_scores[day] = min(score,50)
@@ -237,6 +238,7 @@ def score_processor(daily_scores):
         capped_weekly_scores[week] = min(score,150)
         
     total_score = sum(capped_weekly_scores.values())
+    print("Successfully applied limits to scores")
     
     return total_score, current_week_details
         
@@ -259,7 +261,12 @@ def update_scores():
     
     STRAVA_USERS = json.loads(STRAVA_USERS)
     
+    print("Sucessfully pulled athlete information")
+    print(f"Number of athletes: {len(STRAVA_USERS)}")
+    athlete_number = 0
+    
     for athlete_id in STRAVA_USERS:
+        athlete_number += 1
         activities = redis.hgetall(athlete_id)
         raw_daily_scores = defaultdict(float)
         zone1 = 0
@@ -269,6 +276,7 @@ def update_scores():
         zone5 = 0
         tot_time = 0
         athlete_sports = defaultdict(float)
+        print(f"Beginning work for athlete: {athlete_number}")
         for activity, zone_data in activities.items():
             zone_data = ast.literal_eval(zone_data)
             act_score = 0
@@ -291,7 +299,9 @@ def update_scores():
                                   "Z5":zone5/tot_time*100}
         last_7[athlete_name] = athlete_week
         sport_choice[athlete_name] = athlete_sports
+        print(f"Finished work for athlete: {athlete_number}")
     
+    print("Compiling information for scores.json")
     score_board_list = [{"name": name, "score": round(score_board[name],1), "zones" : per_zone[name],
                          "last_7": last_7[name], "sports": sport_choice[name]} for name, score in score_board.items()]
 
@@ -310,7 +320,7 @@ def upload_to_github(data_to_upload):
     """
     Creates or updates a file in a GitHub repository.
     """
-    
+    print("Trying to upload new information to Github")
     # --- Configuration ---
     # Your GitHub username or organization name
     REPO_OWNER = os.environ.get('GITHUB_REPO_OWNER')

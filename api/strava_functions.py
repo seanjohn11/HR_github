@@ -255,6 +255,8 @@ def update_scores():
     last_7 = {}
     sport_choice = {}
     
+    STRAVA_USERS = json.loads(STRAVA_USERS)
+    
     for athlete_id in STRAVA_USERS:
         activities = redis.hgetall(athlete_id)
         raw_daily_scores = defaultdict(float)
@@ -266,6 +268,7 @@ def update_scores():
         tot_time = 0
         athlete_sports = defaultdict(float)
         for activity, zone_data in activities.items():
+            zone_data = json.loads(zone_data)
             act_score = 0
             act_score += zone_data['z1'] + zone_data['z2'] + zone_data['z3'] + 2*(zone_data['z4'] + zone_data['z5'])
             act_score /= 60
@@ -310,7 +313,7 @@ def upload_to_github(data_to_upload):
     # Your GitHub username or organization name
     REPO_OWNER = os.environ.get('GITHUB_REPO_OWNER')
     # The name of your repository
-    REPO_NAME = os.envrion.get('GITHUB_REPO_NAME')         
+    REPO_NAME = os.environ.get('GITHUB_REPO_NAME')         
     # The path to the file in your repository
     FILE_PATH = "scores.json"             
     # Securely get the token from Vercel's environment variables

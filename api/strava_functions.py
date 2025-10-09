@@ -43,7 +43,7 @@ def refresh_strava_token(client_id, client_secret, user_creds):
     user_creds["refresh_token"] = token_data["refresh_token"]
     user_creds["expires_at"] = token_data["expires_at"]
     
-    existing_users_str = os.environ['EXISTING_USERS_JSON']
+    existing_users_str = os.environ['STRAVA_USERS']
     existing_users_data = json.loads(existing_users_str)
     
     updated_users_data = {**existing_users_data, **user_creds}
@@ -59,14 +59,6 @@ def refresh_strava_token(client_id, client_secret, user_creds):
     }
     try:
         # --- Update STRAVA_USERS Secret ---
-        # 1. Delete the old secret. A 404 error is okay, it means the secret didn't exist.
-        """print(f"Attempting to delete old '{SECRET_KEY_TO_CHANGE}' secret...")
-        del_response_users = requests.delete(delete_url_users, headers=headers)
-        if del_response_users.status_code not in [200, 404]:
-             del_response_users.raise_for_status() # Raise an error for other statuses
-        print(f"Deletion step for '{SECRET_KEY_TO_CHANGE}' complete.")"""
-
-        # 2. Create the new secret with the updated value.
         payload_users = {
             "value": json.dumps(updated_users_data),
             "target": ["production", "preview", "development"]

@@ -276,6 +276,7 @@ def update_scores():
         for activity, zone_data in activities.items():
             act_score = 0
             act_score += zone_data['z1'] + zone_data['z2'] + zone_data['z3'] + 2*(zone_data['z4'] + zone_data['z5'])
+            act_score /= 60
             date_obj = date.fromisoformat(zone_data['date'])
             raw_daily_scores[date_obj] += act_score 
             zone1 += zone_data['z1']

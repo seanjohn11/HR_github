@@ -11,7 +11,7 @@ from flask import Flask, request
 from upstash_redis import Redis
 import qstash
 import requests
-from .strava_functions import activity_processing
+from .strava_functions import activity_processing, update_scores
 
 QSTASH_TOKEN = os.environ.get('QSTASH_TOKEN')
 
@@ -108,13 +108,12 @@ def process_queued_event():
                 remove_athlete_secrets(str(object_id))
                 
                 print("✅ Successfully deleted all data for athlete")
+        update_scores()
 
     except Exception as e:
         print(f"❌ ERROR processing event for athlete. Error: {e}")
         # Return an error to QStash so it can retry the job if something fails.
         return 'Processing Failed', 500
-    
-    
 
     # Return 200 OK to QStash to confirm the job is done.
     return 'Processing Complete', 200

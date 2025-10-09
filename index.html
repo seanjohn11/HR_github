@@ -16,46 +16,75 @@
         .leaderboard-entry:hover {
             transform: scale(1.02);
         }
-        
+
+        /* Tab Styles */
+        .tab-button {
+            transition: all 0.2s ease-in-out;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-button.active {
+            border-bottom-color: #22d3ee; /* cyan-400 */
+            color: #22d3ee;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Bar Chart Styles */
+        .chart-bar {
+            background-color: #4b5563; /* gray-600 */
+            border-radius: 0.25rem;
+            height: 1.5rem;
+            transition: width 0.5s ease-in-out;
+            text-align: right;
+            padding-right: 0.5rem;
+            white-space: nowrap;
+            color: white;
+            font-size: 0.875rem;
+            line-height: 1.5rem;
+        }
+
         #join-button {
-    	background-image: url('./images/btn_strava_connect_with_orange.png');
-    	background-size: contain; /* Or 'cover'. 'Contain' fits the whole image inside */
-    	background-repeat: no-repeat;
-    	background-position: center;
-    	background-color: transparent;
-    	border: none;
-    	width: 200px;  /* Example width */
-    	height: 50px; /* Example height */
-    	cursor: pointer;
-	}
-	#join-button:hover {
-    	background-image: url('./images/btn_strava_connect_with_white.png');
-	}
-	#submit-button {
-    	background-image: url('./images/btn_strava_connect_with_orange.png');
-    	background-size: contain; /* Or 'cover'. 'Contain' fits the whole image inside */
-    	background-repeat: no-repeat;
-    	background-position: center;
-    	background-color: transparent;
-    	border: none;
-    	width: 200px;  /* Example width */
-    	height: 50px; /* Example height */
-    	cursor: pointer;
-	}
-	#submit-button:hover {
-    	background-image: url('./images/btn_strava_connect_with_white.png');
-	}
+            background-image: url('./images/btn_strava_connect_with_orange.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent;
+            border: none;
+            width: 200px;
+            height: 50px;
+            cursor: pointer;
+        }
+        #join-button:hover {
+            background-image: url('./images/btn_strava_connect_with_white.png');
+        }
+        #submit-button {
+            background-image: url('./images/btn_strava_connect_with_orange.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent;
+            border: none;
+            width: 200px;
+            height: 50px;
+            cursor: pointer;
+        }
+        #submit-button:hover {
+            background-image: url('./images/btn_strava_connect_with_white.png');
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
-    <div class="container mx-auto p-4 max-w-2xl">
+    <div class="container mx-auto p-4 max-w-4xl">
         <header class="text-center mb-8">
             <h1 class="text-4xl md:text-5xl font-bold text-cyan-400">Family Fitness Challenge</h1>
             <img src="./images/api_logo_pwrdBy_strava_horiz_orange.png" alt="Powered by Strava" class="block mx-auto mt-2 h-7">
         </header>
 
-        <!-- Success/Error Messages -->
         <div id="message-container" class="mb-4">
              <div id="success-message" class="hidden bg-green-900 border border-green-700 text-green-300 px-4 py-3 rounded-lg relative" role="alert">
                 <strong class="font-bold">Success!</strong>
@@ -69,25 +98,33 @@
 
         <main class="bg-gray-800 rounded-lg shadow-xl p-6">
             <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
-                <h2 class="text-2xl font-semibold">Leaderboard</h2>
+                <div id="tabs" class="flex space-x-4 md:space-x-8">
+                    <button class="tab-button active py-2 px-1 text-lg font-semibold" data-target="leaderboard-content">Leaderboard</button>
+                    <button class="tab-button py-2 px-1 text-lg font-semibold" data-target="zones-content">% Zones</button>
+                    <button class="tab-button py-2 px-1 text-lg font-semibold" data-target="last-week-content">Last week</button>
+                    <button class="tab-button py-2 px-1 text-lg font-semibold" data-target="sports-content">Sports</button>
+                </div>
                 <div class="text-right">
                     <p class="text-sm text-gray-400">Last Updated:</p>
                     <p id="last-updated" class="font-medium text-gray-300">Loading...</p>
                 </div>
             </div>
 
-            <div id="leaderboard-container" class="space-y-4">
-                <!-- Scores will be loaded here -->
-                <div class="text-center text-gray-400">
-                    <p>Fetching the latest scores...</p>
+            <div id="tab-content-container">
+                <div id="leaderboard-content" class="tab-content active space-y-4">
+                    <p class="text-center text-gray-400">Fetching the latest scores...</p>
                 </div>
+                <div id="zones-content" class="tab-content space-y-6">
+                    </div>
+                <div id="last-week-content" class="tab-content">
+                    </div>
+                <div id="sports-content" class="tab-content space-y-6">
+                    </div>
             </div>
         </main>
         
-        <!-- Join Challenge Section -->
         <div class="mt-8 text-center">
             <button id="join-button" class=""></button>
-
             <form id="join-form" class="hidden mt-6 bg-gray-800 p-6 rounded-lg shadow-xl max-w-md mx-auto text-left space-y-4">
                  <div>
                     <label for="join_password" class="block text-sm font-medium text-gray-300">Password</label>
@@ -112,13 +149,13 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            setupDisplayScores();
+            loadDataAndSetupDisplay();
             setupJoinButton();
             checkUrlStatus();
+            setupTabs();
         });
 
-        function setupDisplayScores() {
-            const leaderboardContainer = document.getElementById('leaderboard-container');
+        function loadDataAndSetupDisplay() {
             const lastUpdatedSpan = document.getElementById('last-updated');
 
             fetch(`scores.json?t=${new Date().getTime()}`)
@@ -134,40 +171,174 @@
                         timeStyle: 'short'
                     });
                     
-                    leaderboardContainer.innerHTML = ''; 
-
                     if (!data.leaderboard || data.leaderboard.length === 0) {
-                        leaderboardContainer.innerHTML = '<p class="text-center text-gray-400">No scores to display yet. Check back tomorrow!</p>';
+                        document.getElementById('leaderboard-content').innerHTML = '<p class="text-center text-gray-400">No scores to display yet. Check back tomorrow!</p>';
                         return;
                     }
                     
+                    // Sort leaderboard by score
                     data.leaderboard.sort((a, b) => b.score - a.score);
 
-                    data.leaderboard.forEach((person, index) => {
-                        const rank = index + 1;
-                        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
-
-                        const entry = document.createElement('div');
-                        entry.className = 'leaderboard-entry bg-gray-700 p-4 rounded-lg flex items-center justify-between shadow-md';
-                        
-                        entry.innerHTML = `
-                            <div class="flex items-center">
-                                <span class="text-xl w-10 font-bold text-cyan-400">${medal}</span>
-                                <span class="font-semibold text-lg">${person.name}</span>
-                            </div>
-                            <span class="font-bold text-xl text-white">${person.score.toLocaleString()} pts</span>
-                        `;
-                        leaderboardContainer.appendChild(entry);
-                    });
+                    // Render all tabs
+                    renderLeaderboard(data.leaderboard);
+                    renderZones(data.leaderboard);
+                    renderLastWeek(data.leaderboard);
+                    renderSports(data.leaderboard);
                 })
                 .catch(error => {
                     console.error("Error fetching scores:", error);
                     lastUpdatedSpan.textContent = 'N/A';
-                    leaderboardContainer.innerHTML = `<p class="text-center text-red-400">Could not load scores. The competition might not have started yet. Make sure a 'scores.json' file exists in the repository.</p>`;
+                    document.getElementById('leaderboard-content').innerHTML = `<p class="text-center text-red-400">Could not load scores. The competition might not have started yet. Make sure a 'scores.json' file exists in the repository.</p>`;
                 });
         }
 
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetId = tab.dataset.target;
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    contents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === targetId) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+        }
+
+        function renderLeaderboard(leaderboardData) {
+            const container = document.getElementById('leaderboard-content');
+            container.innerHTML = '';
+            leaderboardData.forEach((person, index) => {
+                const rank = index + 1;
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+                const entry = document.createElement('div');
+                entry.className = 'leaderboard-entry bg-gray-700 p-4 rounded-lg flex items-center justify-between shadow-md';
+                entry.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-xl w-10 font-bold text-cyan-400">${medal}</span>
+                        <span class="font-semibold text-lg">${person.name}</span>
+                    </div>
+                    <span class="font-bold text-xl text-white">${person.score.toLocaleString()} pts</span>
+                `;
+                container.appendChild(entry);
+            });
+        }
+
+        function renderZones(leaderboardData) {
+            const container = document.getElementById('zones-content');
+            container.innerHTML = '';
+            const zoneColors = { Z1: '#3b82f6', Z2: '#22c55e', Z3: '#eab308', Z4: '#f97316', Z5: '#ef4444' };
+
+            leaderboardData.forEach(person => {
+                const totalMinutes = Object.values(person.zones).reduce((sum, val) => sum + val, 0);
+                if (totalMinutes === 0) return;
+
+                const personContainer = document.createElement('div');
+                personContainer.innerHTML = `<h3 class="font-semibold text-lg mb-2">${person.name}</h3>`;
+                
+                const chartContainer = document.createElement('div');
+                chartContainer.className = 'space-y-2';
+
+                Object.entries(person.zones).forEach(([zone, minutes]) => {
+                    const percentage = (minutes / totalMinutes) * 100;
+                    const barHtml = `
+                        <div class="flex items-center">
+                            <span class="w-8 font-medium text-sm text-gray-400">${zone}</span>
+                            <div class="w-full bg-gray-700 rounded-md">
+                                <div class="chart-bar" style="width: ${percentage.toFixed(1)}%; background-color: ${zoneColors[zone] || '#4b5563'};">
+                                    ${percentage.toFixed(1)}%
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    chartContainer.innerHTML += barHtml;
+                });
+                personContainer.appendChild(chartContainer);
+                container.appendChild(personContainer);
+            });
+        }
+
+        function renderLastWeek(leaderboardData) {
+            const container = document.getElementById('last-week-content');
+            container.innerHTML = '';
+            if (leaderboardData.length === 0) return;
+
+            const headers = Object.keys(leaderboardData[0].last_7);
+            let table = `
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-700">
+                                <th class="p-3 font-semibold">Name</th>
+                                ${headers.map(day => `<th class="p-3 font-semibold text-center">${day}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            leaderboardData.forEach(person => {
+                table += `<tr class="border-b border-gray-700">`;
+                table += `<td class="p-3 font-medium">${person.name}</td>`;
+                headers.forEach(day => {
+                    const score = person.last_7[day];
+                    table += `<td class="p-3 text-center ${score > 0 ? 'text-cyan-400 font-bold' : 'text-gray-400'}">${score}</td>`;
+                });
+                table += `</tr>`;
+            });
+
+            table += `</tbody></table></div>`;
+            container.innerHTML = table;
+        }
+
+        function renderSports(leaderboardData) {
+            const container = document.getElementById('sports-content');
+            container.innerHTML = '';
+            const sportColors = ['#3b82f6', '#10b981', '#f97316', '#8b5cf6', '#ec4899'];
+
+            leaderboardData.forEach(person => {
+                if (Object.keys(person.sports).length === 0) return;
+
+                const personContainer = document.createElement('div');
+                personContainer.innerHTML = `<h3 class="font-semibold text-lg mb-2">${person.name}</h3>`;
+                
+                const chartContainer = document.createElement('div');
+                chartContainer.className = 'space-y-2';
+
+                let colorIndex = 0;
+                const totalActivities = Object.values(person.sports).reduce((sum, val) => sum + val, 0);
+
+                Object.entries(person.sports).forEach(([sport, count]) => {
+                    const percentage = (count / totalActivities) * 100;
+                    const color = sportColors[colorIndex % sportColors.length];
+                    colorIndex++;
+
+                    const barHtml = `
+                        <div class="flex items-center">
+                            <span class="w-20 font-medium text-sm text-gray-400">${sport}</span>
+                            <div class="w-full bg-gray-700 rounded-md">
+                                <div class="chart-bar" style="width: ${percentage.toFixed(1)}%; background-color: ${color};">
+                                    ${count} ${count > 1 ? 'times' : 'time'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    chartContainer.innerHTML += barHtml;
+                });
+                personContainer.appendChild(chartContainer);
+                container.appendChild(personContainer);
+            });
+        }
+
         function setupJoinButton() {
+            // This function remains unchanged
             const joinButton = document.getElementById('join-button');
             const joinForm = document.getElementById('join-form');
 
@@ -202,6 +373,7 @@
         }
 
         function checkUrlStatus() {
+            // This function remains unchanged
             const urlParams = new URLSearchParams(window.location.search);
             const status = urlParams.get('status');
 
@@ -214,5 +386,3 @@
     </script>
 </body>
 </html>
-
-

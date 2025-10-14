@@ -17,6 +17,7 @@ from dateutil import parser
 from upstash_redis import Redis
 from collections import defaultdict
 import ast
+import pytz
 
 def token_expired(expires_at):
     """Check if the Strava token is expired."""
@@ -305,8 +306,10 @@ def update_scores():
     score_board_list = [{"name": name, "score": round(score_board[name],1), "zones" : per_zone[name],
                          "last_7": last_7[name], "sports": sport_choice[name]} for name, score in score_board.items()]
 
+    mountain_tz = pytz.timezone('America/Denver')
+    mountain_time = datetime.now(mountain_tz)
     final_data = {
-        "lastUpdated": datetime.now().isoformat(),
+        "lastUpdated": mountain_time.isoformat(),
         "leaderboard": score_board_list
     }
 

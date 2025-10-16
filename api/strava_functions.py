@@ -295,9 +295,14 @@ def update_scores():
         athlete_score, athlete_week = score_processor(raw_daily_scores)
         athlete_name = STRAVA_USERS[athlete_id]['name']
         score_board[athlete_name] = athlete_score
-        per_zone[athlete_name] = {"Z1":zone1/tot_time*100, "Z2":zone2/tot_time*100, 
-                                  "Z3":zone3/tot_time*100, "Z4":zone4/tot_time*100, 
-                                  "Z5":zone5/tot_time*100}
+        if tot_time > 0:
+            per_zone[athlete_name] = {"Z1":zone1/tot_time*100, "Z2":zone2/tot_time*100, 
+                                      "Z3":zone3/tot_time*100, "Z4":zone4/tot_time*100, 
+                                      "Z5":zone5/tot_time*100}
+        else:
+            per_zone[athlete_name] = {"Z1":0, "Z2":0, 
+                                      "Z3":0, "Z4":0, 
+                                      "Z5":0}
         last_7[athlete_name] = athlete_week
         sport_choice[athlete_name] = athlete_sports
         print(f"Finished work for athlete: {athlete_number}")

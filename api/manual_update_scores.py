@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 # This handles all requests to /api/run_manual_task
 @app.route('/api/manual_update_scores', methods=['POST'])
-def handler(path):
+def handler():
     # 1. Security Check: Verify the secret token from the request header
     auth_header = request.headers.get('Authorization')
     expected_token = f"Bearer {os.environ.get('VERCEL_MANUAL_SECRET')}"

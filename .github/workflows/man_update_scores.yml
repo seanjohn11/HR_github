@@ -9,5 +9,5 @@ jobs:
     steps:
       - name: Trigger Vercel Serverless Function
         run: |
-          curl -X POST "https://your-project.vercel.app/api/manual_update_scores" \
+          curl -X POST "https://hr-github.vercel.app/api/manual_update_scores" \
           -H "Authorization: Bearer ${{ secrets.VERCEL_MANUAL_SECRET }}"

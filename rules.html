@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-900 text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competition Rules</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .content-link {
+            @apply text-cyan-400 hover:text-cyan-300 underline;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen py-10">
+
+    <div class="container mx-auto p-4 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-cyan-400">Competition Rules</h1>
+            <p class="mt-4">
+                <a href="index.html" class="text-lg text-cyan-400 hover:text-cyan-300 underline">
+                    &larr; Back to Leaderboard
+                </a>
+            </p>
+        </header>
+
+        <main class="bg-gray-800 rounded-lg shadow-xl p-6 md:p-8">
+            
+            <div class="space-y-4 text-gray-300 leading-relaxed">
+                <h2 class="text-3xl font-semibold text-white mb-3 border-b border-gray-700 pb-2">
+                    Scoring Rules
+                </h2>
+                <p>
+                    The scoring is based on recommendations from the <a href="https://www.heart.org/en/healthy-living/fitness/fitness-basics/aha-recs-for-physical-activity-in-adults" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 underline">American Heart Association</a> and the <a href="https://www.nhlbi.nih.gov/health/heart/physical-activity/tips" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 underline">National Institute of Health</a>, which recommend 150 minutes of moderate intensity activity or 75 minutes of vigorous activity per week.
+                </p>
+                <p>
+                    This is done to encourage building a healthy habit and not just binge-working out one day a week.
+                </p>
+                <ul class="list-disc list-inside ml-4 space-y-2 pt-2">
+                    <li>There is a maximum of <strong>50 points</strong> allowed per day.</li>
+                    <li>There is a maximum of <strong>150 points</strong> allowed per week.</li>
+                </ul>
+            </div>
+
+            <div class="mt-8 space-y-4 text-gray-300 leading-relaxed">
+                <h3 class="text-2xl font-semibold text-white mb-3 border-b border-gray-700 pb-2">
+                    How Points Are Scored
+                </h3>
+                 <ul class="list-disc list-inside ml-4 space-y-2">
+                    <li><strong>1 point</strong> per minute with your heart rate in Zones 1-3.</li>
+                    <li><strong>2 points</strong> per minute with your heart rate in Zones 4-5.</li>
+                </ul>
+            </div>
+
+            <div class="mt-10 space-y-4 text-gray-300 leading-relaxed">
+                <h2 class="text-3xl font-semibold text-white mb-3 border-b border-gray-700 pb-2">
+                    Heart Rate Zone Calculation
+                </h2>
+                <p>
+                    To calculate your zones, you need your max heart rate and resting heart rate (RHR). First, subtract your RHR from your max heart rate to determine your Heart Rate Reserve (HRR). The zones are then calculated as follows:
+                </p>
+                
+                <ul class="list-none ml-4 space-y-2 font-mono bg-gray-900 p-4 rounded-md">
+                    <li><strong>Zone 1:</strong> RHR + (0.4 * HRR) <span class="text-sm text-gray-400">(It’s usually 0.5, you are welcome for the grace)</span></li>
+                    <li><strong>Zone 2:</strong> RHR + (0.6 * HRR)</li>
+                    <li><strong>Zone 3:</strong> RHR + (0.7 * HRR)</li>
+                    <li><strong>Zone 4:</strong> RHR + (0.8 * HRR)</li>
+                    <li><strong>Zone 5:</strong> RHR + (0.9 * HRR)</li>
+                </ul>
+
+                <p class="text-center mt-8">
+                    <img src="https://media.tenor.com/E5W-iLkONaYAAAAd/godfather-marlon-brando.gif" alt="Marlon Brando shrugging gif" class="mx-auto rounded-lg shadow-lg" style="max-width: 100%; height: auto;">
+                </p>
+            </div>
+            
+            <div class="mt-10 space-y-4 text-gray-300 leading-relaxed">
+                <h2 class="text-3xl font-semibold text-white mb-3 border-b border-gray-700 pb-2">
+                    Future Plans
+                </h2>
+                <p>
+                    Monthly challenges are currently in the development stage.
+                </p>
+            </div>
+
+        </main>
+        
+        <footer class="text-center mt-8 text-gray-500 text-sm">
+            <p>Good luck!</p>
+        </footer>
+    </div>
+
+</body>
+</html>

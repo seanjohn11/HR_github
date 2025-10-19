@@ -148,12 +148,13 @@ def zone_builder(athlete_id):
     #user_vals = hr_secret[athlete_id]
     min = hr_secret[athlete_id]['hr_values'][0]
     res = hr_secret[athlete_id]['hr_values'][1] - hr_secret[athlete_id]['hr_values'][0]
+    min_hr = min + .4*res
     
     maxes = [math.floor(min + .6*res),
              math.floor(min + .7*res),
              math.floor(min + .8*res),
              math.floor(min + .9*res)]
-    return maxes
+    return maxes, min_hr
 
 def time_in_zones(athlete_id,hr_data, tot_time):
     """
@@ -169,11 +170,11 @@ def time_in_zones(athlete_id,hr_data, tot_time):
     sample_interval = tot_time / n_samples
 
     # Define Athlete Specific Zones
-    zone_maxes = zone_builder(athlete_id)
+    zone_maxes, min_hr = zone_builder(athlete_id)
 
     # Find time spent in each zone
     for hr in hr_data:
-        if hr < zone_maxes[0]:
+        if hr < zone_maxes[0] and hr > min_hr:
             zones["z1"] += sample_interval
         elif hr < zone_maxes[1]:
             zones["z2"] += sample_interval
@@ -218,7 +219,7 @@ def score_processor(daily_scores):
     start_date = today - timedelta(days=6)
     
     current_week_details = {}
-    day_names = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+    day_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
     
     for i in range(7):
         current_day = start_date + timedelta(days=i)
@@ -226,7 +227,7 @@ def score_processor(daily_scores):
         score = capped_daily_scores.get(current_day,0)
         day_name = day_names[current_day.weekday()]
         key = f"{day_name} ({current_day.strftime('%m/%d')})"
-        current_week_details[key] = score
+        current_week_details[key] = round(score,1)
     
     raw_weekly_scores = defaultdict(float)
     

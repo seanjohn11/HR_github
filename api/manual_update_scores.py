@@ -8,7 +8,7 @@ Created on Wed Oct 15 19:11:33 2025
 
 from flask import Flask, request, jsonify
 import os
-from .strava_functions import update_scores
+from strava_functions import update_scores
 
 # Vercel will automatically detect and run this Flask app
 app = Flask(__name__)

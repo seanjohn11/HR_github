@@ -9,7 +9,7 @@ print("DEBUG: Top of manual_update_scores.py") # <-- ADD THIS
 
 from flask import Flask, request, jsonify
 import os
-from .strava_functions import update_scores
+from strava_functions import update_scores
 
 print("DEBUG: Imported strava_functions successfully") # <-- ADD THIS
 

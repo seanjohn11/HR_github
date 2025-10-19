@@ -9,7 +9,7 @@ print("DEBUG: Top of manual_update_scores.py") # <-- ADD THIS
 
 from flask import Flask, request, jsonify
 import os
-from strava_functions import update_scores
+from .strava_functions import update_scores
 
 print("DEBUG: Imported strava_functions successfully") # <-- ADD THIS
 
@@ -20,7 +20,7 @@ print("DEBUG: Flask app object created") # <-- ADD THIS
 
 # This handles all requests to /api/run_manual_task
 @app.route('/api/manual_update_scores', methods=['POST'])
-def handler():
+def handler_of_manual_update():
     # 1. Security Check: Verify the secret token from the request header
     auth_header = request.headers.get('Authorization')
     expected_token = f"Bearer {os.environ.get('VERCEL_MANUAL_SECRET')}"

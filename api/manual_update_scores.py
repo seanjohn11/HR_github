@@ -5,13 +5,18 @@ Created on Wed Oct 15 19:11:33 2025
 
 @author: sean
 """
+print("DEBUG: Top of manual_update_scores.py") # <-- ADD THIS
 
 from flask import Flask, request, jsonify
 import os
-from strava_functions import update_scores
+from .strava_functions import update_scores
+
+print("DEBUG: Imported strava_functions successfully") # <-- ADD THIS
 
 # Vercel will automatically detect and run this Flask app
+print("DEBUG: Creating Flask app object") # <-- ADD THIS
 app = Flask(__name__)
+print("DEBUG: Flask app object created") # <-- ADD THIS
 
 # This handles all requests to /api/run_manual_task
 @app.route('/api/manual_update_scores', methods=['POST'])
@@ -24,10 +29,8 @@ def handler():
         return jsonify(message="Unauthorized"), 401
 
     # 2. Your Script's Logic Goes Here
-    # This function can now access any Vercel environment variable
     try:
         update_scores()
-
         # 3. Send a success response
         return jsonify(message="Script executed successfully."), 200
 

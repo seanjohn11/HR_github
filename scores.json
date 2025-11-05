@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-11-05T08:37:31.184949-07:00",
+  "lastUpdated": "2025-11-05T08:39:27.267273-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -44,9 +44,9 @@
         "Wed (11/05)": 49.3
       },
       "sports": {
-        "Walk": 1.0,
+        "TrailRun": 4.0,
         "Workout": 4.0,
-        "TrailRun": 4.0
+        "Walk": 1.0
       }
     },
     {

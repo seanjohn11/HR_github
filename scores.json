@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-11-22T14:46:56.424484-07:00",
+  "lastUpdated": "2025-11-22T14:48:52.834647-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -21,8 +21,8 @@
         "Sat (11/22)": 0
       },
       "sports": {
-        "Ride": 2.0,
-        "Run": 2.0
+        "Run": 2.0,
+        "Ride": 2.0
       }
     },
     {
@@ -45,8 +45,8 @@
         "Sat (11/22)": 0
       },
       "sports": {
-        "Workout": 9.0,
         "TrailRun": 8.0,
+        "Workout": 9.0,
         "Walk": 1.0
       }
     },
@@ -70,8 +70,8 @@
         "Sat (11/22)": 0
       },
       "sports": {
-        "Walk": 4.0,
         "Yoga": 1.0,
+        "Walk": 4.0,
         "Workout": 2.0
       }
     },
@@ -95,11 +95,11 @@
         "Sat (11/22)": 0
       },
       "sports": {
+        "Run": 2.0,
         "WeightTraining": 3.0,
-        "Hike": 1.0,
         "Walk": 1.0,
         "Racquetball": 2.0,
-        "Run": 2.0
+        "Hike": 1.0
       }
     },
     {
@@ -122,9 +122,9 @@
         "Sat (11/22)": 0.0
       },
       "sports": {
+        "Walk": 1.0,
         "Hike": 1.0,
-        "Run": 3.0,
-        "Walk": 1.0
+        "Run": 3.0
       }
     }
   ]

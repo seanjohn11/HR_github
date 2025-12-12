@@ -211,6 +211,7 @@ def score_processor(daily_scores):
     a weekly limt to the scores, and finally totals up all the scores.
     Returns the total score, current week's output"""
     print("Applying limits to scores")
+    PTO = 600
     capped_daily_scores = {}
     for day, score in daily_scores.items():
         capped_daily_scores[day] = min(score,50)
@@ -237,9 +238,21 @@ def score_processor(daily_scores):
         
     capped_weekly_scores = {}
     for week, score in raw_weekly_scores.items():
-        capped_weekly_scores[week] = min(score,150)
+        if (score < 150) and (PTO > 0):
+            points_short = 150 - score
+            if points_short < PTO:
+                PTO -= points_short
+                score += points_short
+                capped_weekly_scores[week] = 150
+            else:
+                score += PTO
+                PTO = 0
+                capped_weekly_scores[week] = score
+        else:
+            capped_weekly_scores[week] = min(score,150)
         
     total_score = sum(capped_weekly_scores.values())
+    current_week_details["PTO remaining"] = PTO
     print("Successfully applied limits to scores")
     
     return total_score, current_week_details

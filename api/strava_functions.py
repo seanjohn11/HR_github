@@ -237,7 +237,13 @@ def score_processor(daily_scores):
         raw_weekly_scores[week_num] += score
         
     capped_weekly_scores = {}
-    for week, score in raw_weekly_scores.items():
+    start_week = 44
+    _, current_week, _ = today.isocalendar()
+    
+    for week in range(start_week, current_week):
+        # .get(week, 0) handles the "Ghost Week" where the athlete did nothing
+        score = raw_weekly_scores.get(week, 0)
+    #for week, score in raw_weekly_scores.items():
         if (score < 150) and (PTO > 0):
             points_short = 150 - score
             if points_short < PTO:
@@ -252,7 +258,7 @@ def score_processor(daily_scores):
             capped_weekly_scores[week] = min(score,150)
         
     total_score = sum(capped_weekly_scores.values())
-    current_week_details["PTO remaining"] = PTO
+    current_week_details["PTO remaining"] = round(PTO,1)
     print("Successfully applied limits to scores")
     
     return total_score, current_week_details

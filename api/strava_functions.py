@@ -240,11 +240,11 @@ def score_processor(daily_scores):
     start_week = 44
     _, current_week, _ = today.isocalendar()
     
-    for week in range(start_week, current_week):
+    for week in range(start_week, current_week+1):
         # .get(week, 0) handles the "Ghost Week" where the athlete did nothing
         score = raw_weekly_scores.get(week, 0)
     #for week, score in raw_weekly_scores.items():
-        if (score < 150) and (PTO > 0):
+        if (score < 150) and (PTO > 0) and (week != current_week):
             points_short = 150 - score
             if points_short < PTO:
                 PTO -= points_short

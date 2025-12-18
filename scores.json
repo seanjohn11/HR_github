@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-12-17T20:07:43.950286-07:00",
+  "lastUpdated": "2025-12-17T20:09:42.510091-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -32,7 +32,7 @@
       "score": 1047.6,
       "zones": {
         "Z1": 41.35559935152758,
-        "Z2": 33.59010988340832,
+        "Z2": 33.59010988340831,
         "Z3": 12.367450121091704,
         "Z4": 9.340156173850666,
         "Z5": 3.346684470121638
@@ -49,8 +49,8 @@
       },
       "sports": {
         "WeightTraining": 13.0,
-        "Workout": 1.0,
-        "Walk": 1.0
+        "Walk": 1.0,
+        "Workout": 1.0
       }
     },
     {
@@ -120,9 +120,9 @@
         "PTO remaining": 0
       },
       "sports": {
-        "Yoga": 1.0,
+        "HighIntensityIntervalTraining": 1.0,
         "Walk": 3.0,
-        "HighIntensityIntervalTraining": 1.0
+        "Yoga": 1.0
       }
     },
     {

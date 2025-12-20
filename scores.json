@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-12-19T20:50:51.154470-07:00",
+  "lastUpdated": "2025-12-19T20:52:46.788646-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -23,18 +23,18 @@
       },
       "sports": {
         "Run": 4.0,
-        "Workout": 1.0,
-        "Ride": 3.0
+        "Ride": 3.0,
+        "Workout": 1.0
       }
     },
     {
       "name": "Robyn",
       "score": 1115.6,
       "zones": {
-        "Z1": 46.04123656659595,
-        "Z2": 30.82350619764778,
+        "Z1": 46.041236566595934,
+        "Z2": 30.82350619764779,
         "Z3": 11.127117418863563,
-        "Z4": 8.65546528491323,
+        "Z4": 8.655465284913232,
         "Z5": 3.3526745319792495
       },
       "last_7": {
@@ -48,8 +48,8 @@
         "PTO remaining": 0
       },
       "sports": {
-        "Walk": 4.0,
         "WeightTraining": 15.0,
+        "Walk": 4.0,
         "Workout": 1.0
       }
     },
@@ -57,10 +57,10 @@
       "name": "Joseph",
       "score": 750,
       "zones": {
-        "Z1": 44.62742640193824,
-        "Z2": 41.417899254417726,
+        "Z1": 44.627426401938244,
+        "Z2": 41.41789925441772,
         "Z3": 10.598031217578372,
-        "Z4": 3.3566431260656433,
+        "Z4": 3.356643126065644,
         "Z5": 0.0
       },
       "last_7": {
@@ -122,10 +122,10 @@
         "PTO remaining": 0
       },
       "sports": {
-        "WeightTraining": 1.0,
+        "Yoga": 1.0,
         "Walk": 4.0,
-        "HighIntensityIntervalTraining": 1.0,
-        "Yoga": 1.0
+        "WeightTraining": 1.0,
+        "HighIntensityIntervalTraining": 1.0
       }
     },
     {
@@ -149,8 +149,8 @@
         "PTO remaining": 0
       },
       "sports": {
-        "WeightTraining": 1.0,
-        "Ride": 2.0
+        "Ride": 2.0,
+        "WeightTraining": 1.0
       }
     },
     {

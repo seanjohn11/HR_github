@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-12-23T21:14:22.039938-07:00",
+  "lastUpdated": "2025-12-23T21:16:18.633670-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -22,8 +22,8 @@
         "PTO remaining": 0
       },
       "sports": {
-        "Run": 4.0,
         "Workout": 2.0,
+        "Run": 4.0,
         "Ride": 3.0
       }
     },
@@ -105,7 +105,7 @@
       "name": "Morgan",
       "score": 833.6,
       "zones": {
-        "Z1": 20.595954424218032,
+        "Z1": 20.59595442421803,
         "Z2": 64.41266697264231,
         "Z3": 13.491111805250542,
         "Z4": 1.4655004039837765,
@@ -123,9 +123,9 @@
       },
       "sports": {
         "Walk": 6.0,
+        "HighIntensityIntervalTraining": 1.0,
         "WeightTraining": 2.0,
-        "Yoga": 1.0,
-        "HighIntensityIntervalTraining": 1.0
+        "Yoga": 1.0
       }
     },
     {
@@ -202,7 +202,7 @@
       "name": "Darlene",
       "score": 665.3,
       "zones": {
-        "Z1": 62.66999440522937,
+        "Z1": 62.66999440522938,
         "Z2": 37.33000559477062,
         "Z3": 0.0,
         "Z4": 0.0,
@@ -243,9 +243,9 @@
         "PTO remaining": 0
       },
       "sports": {
-        "WeightTraining": 2.0,
         "Walk": 1.0,
-        "Run": 2.0
+        "Run": 2.0,
+        "WeightTraining": 2.0
       }
     },
     {

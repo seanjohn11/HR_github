@@ -211,7 +211,7 @@ def score_processor(daily_scores):
     a weekly limt to the scores, and finally totals up all the scores.
     Returns the total score, current week's output"""
     print("Applying limits to scores")
-    PTO = 600
+    PTO = 750
     capped_daily_scores = {}
     for day, score in daily_scores.items():
         capped_daily_scores[day] = min(score,50)
@@ -233,12 +233,12 @@ def score_processor(daily_scores):
     raw_weekly_scores = defaultdict(float)
     
     for day, score in capped_daily_scores.items():
-        _, week_num, _ = day.isocalendar()
+        week_num = int(day.strftime("%W"))
         raw_weekly_scores[week_num] += score
         
     capped_weekly_scores = {}
     start_week = 44
-    _, current_week, _ = today.isocalendar()
+    current_week = int(today.strftime("%W"))
     
     for week in range(start_week, current_week+1):
         # .get(week, 0) handles the "Ghost Week" where the athlete did nothing

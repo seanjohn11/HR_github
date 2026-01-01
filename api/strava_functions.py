@@ -237,7 +237,7 @@ def score_processor(daily_scores):
         raw_weekly_scores[week_num] += score
         
     capped_weekly_scores = {}
-    start_week = 44
+    start_week = 0
     current_week = int(today.strftime("%W"))
     
     for week in range(start_week, current_week+1):

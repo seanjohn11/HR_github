@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-03T11:43:10.564646-07:00",
+  "lastUpdated": "2026-01-03T11:43:42.305696-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -119,8 +119,8 @@
         "PTO remaining": 750
       },
       "sports": {
-        "WeightTraining": 3.0,
-        "Walk": 2.0
+        "Walk": 2.0,
+        "WeightTraining": 3.0
       }
     },
     {
@@ -219,8 +219,8 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Workout": 1.0,
-        "Yoga": 1.0
+        "Yoga": 1.0,
+        "Workout": 1.0
       }
     },
     {
@@ -244,8 +244,8 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Run": 1.0,
-        "WeightTraining": 2.0
+        "WeightTraining": 2.0,
+        "Run": 1.0
       }
     },
     {
@@ -269,8 +269,8 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Walk": 2.0,
-        "Ride": 1.0
+        "Ride": 1.0,
+        "Walk": 2.0
       }
     },
     {

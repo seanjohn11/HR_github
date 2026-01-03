@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-02T19:42:50.102374-07:00",
+  "lastUpdated": "2026-01-02T19:44:45.079245-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -22,8 +22,8 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Run": 1.0,
-        "Ride": 1.0
+        "Ride": 1.0,
+        "Run": 1.0
       }
     },
     {
@@ -119,8 +119,8 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Walk": 2.0,
-        "WeightTraining": 3.0
+        "WeightTraining": 3.0,
+        "Walk": 2.0
       }
     },
     {
@@ -128,7 +128,7 @@
       "score": 88.0,
       "zones": {
         "Z1": 30.353825032793136,
-        "Z2": 41.47940757102204,
+        "Z2": 41.479407571022044,
         "Z3": 16.866439041127173,
         "Z4": 10.867212075524387,
         "Z5": 0.4331162795340706
@@ -144,9 +144,9 @@
         "PTO remaining": 750
       },
       "sports": {
+        "Ride": 1.0,
         "Walk": 1.0,
-        "WeightTraining": 1.0,
-        "Ride": 1.0
+        "WeightTraining": 1.0
       }
     },
     {

@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-02T23:58:55.271176-07:00",
+  "lastUpdated": "2026-01-03T09:00:58.041866-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -119,8 +119,8 @@
         "PTO remaining": 750
       },
       "sports": {
-        "WeightTraining": 3.0,
-        "Walk": 2.0
+        "Walk": 2.0,
+        "WeightTraining": 3.0
       }
     },
     {
@@ -128,7 +128,7 @@
       "score": 88.0,
       "zones": {
         "Z1": 30.353825032793136,
-        "Z2": 41.479407571022044,
+        "Z2": 41.47940757102204,
         "Z3": 16.866439041127173,
         "Z4": 10.867212075524387,
         "Z5": 0.4331162795340706
@@ -144,9 +144,9 @@
         "PTO remaining": 750
       },
       "sports": {
+        "WeightTraining": 1.0,
         "Ride": 1.0,
-        "Walk": 1.0,
-        "WeightTraining": 1.0
+        "Walk": 1.0
       }
     },
     {
@@ -194,8 +194,8 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Ride": 1.0,
-        "WeightTraining": 1.0
+        "WeightTraining": 1.0,
+        "Ride": 1.0
       }
     },
     {
@@ -219,17 +219,17 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Workout": 1.0,
-        "Yoga": 1.0
+        "Yoga": 1.0,
+        "Workout": 1.0
       }
     },
     {
       "name": "Brad",
-      "score": 100.0,
+      "score": 150.0,
       "zones": {
-        "Z1": 19.87773467156937,
-        "Z2": 79.6060888992868,
-        "Z3": 0.5161764291447106,
+        "Z1": 18.15341229524637,
+        "Z2": 71.27590106738106,
+        "Z3": 10.570686637373129,
         "Z4": 0.0,
         "Z5": 0.0
       },
@@ -240,10 +240,11 @@
         "Wed (12/31)": 0,
         "Thu (01/01)": 50,
         "Fri (01/02)": 50,
-        "Sat (01/03)": 0,
+        "Sat (01/03)": 50,
         "PTO remaining": 750
       },
       "sports": {
+        "Run": 1.0,
         "WeightTraining": 2.0
       }
     },
@@ -268,8 +269,8 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Walk": 2.0,
-        "Ride": 1.0
+        "Ride": 1.0,
+        "Walk": 2.0
       }
     },
     {

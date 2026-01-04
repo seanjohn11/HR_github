@@ -222,14 +222,30 @@
         function renderLeaderboard(leaderboardData) {
             const container = document.getElementById('leaderboard-content');
             container.innerHTML = '';
+            
+            // Initialize current rank
+            let currentRank = 1;
+
             leaderboardData.forEach((person, index) => {
-                const rank = index + 1;
-                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+                // If this is not the first person, check if their score is lower than the previous one
+                if (index > 0 && person.score < leaderboardData[index - 1].score) {
+                    // DENSE RANKING: Just add 1 to the previous rank
+                    currentRank++;
+                }
+                // If the score is the same (tie), currentRank stays the same
+
+                // Determine the display icon/text
+                let rankDisplay;
+                if (currentRank === 1) rankDisplay = '🥇';
+                else if (currentRank === 2) rankDisplay = '🥈';
+                else if (currentRank === 3) rankDisplay = '🥉';
+                else rankDisplay = `#${currentRank}`;
+
                 const entry = document.createElement('div');
                 entry.className = 'leaderboard-entry bg-gray-700 p-4 rounded-lg flex items-center justify-between shadow-md';
                 entry.innerHTML = `
                     <div class="flex items-center">
-                        <span class="text-xl w-10 font-bold text-cyan-400">${medal}</span>
+                        <span class="text-xl w-10 font-bold text-cyan-400">${rankDisplay}</span>
                         <span class="font-semibold text-lg">${person.name}</span>
                     </div>
                     <span class="font-bold text-xl text-white">${person.score.toLocaleString()} pts</span>

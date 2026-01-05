@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-05T08:31:04.125246-07:00",
+  "lastUpdated": "2026-01-05T08:33:04.504291-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -71,15 +71,15 @@
         "PTO remaining": 696.0
       },
       "sports": {
-        "Walk": 2.0,
-        "WeightTraining": 2.0
+        "WeightTraining": 2.0,
+        "Walk": 2.0
       }
     },
     {
       "name": "Nelson",
       "score": 150,
       "zones": {
-        "Z1": 23.28963770272732,
+        "Z1": 23.289637702727312,
         "Z2": 76.7103622972713,
         "Z3": 0.0,
         "Z4": 0.0,
@@ -104,7 +104,7 @@
       "name": "Morgan",
       "score": 150.0,
       "zones": {
-        "Z1": 37.81554191337808,
+        "Z1": 37.815541913378084,
         "Z2": 52.28891617324239,
         "Z3": 9.3259130327826,
         "Z4": 0.5696288805967491,
@@ -121,8 +121,8 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Walk": 3.0,
-        "WeightTraining": 3.0
+        "WeightTraining": 3.0,
+        "Walk": 3.0
       }
     },
     {
@@ -146,10 +146,10 @@
         "PTO remaining": 738.0
       },
       "sports": {
-        "Hike": 1.0,
         "Ride": 1.0,
         "Walk": 1.0,
-        "WeightTraining": 1.0
+        "WeightTraining": 1.0,
+        "Hike": 1.0
       }
     },
     {
@@ -199,9 +199,9 @@
         "PTO remaining": 724.4
       },
       "sports": {
+        "WeightTraining": 1.0,
         "Ride": 2.0,
-        "Run": 1.0,
-        "WeightTraining": 1.0
+        "Run": 1.0
       }
     },
     {
@@ -225,8 +225,8 @@
         "PTO remaining": 686.5
       },
       "sports": {
-        "Workout": 1.0,
-        "Yoga": 1.0
+        "Yoga": 1.0,
+        "Workout": 1.0
       }
     },
     {
@@ -234,7 +234,7 @@
       "score": 150.0,
       "zones": {
         "Z1": 18.15341229524637,
-        "Z2": 71.27590106738106,
+        "Z2": 71.27590106738107,
         "Z3": 10.570686637373129,
         "Z4": 0.0,
         "Z5": 0.0
@@ -275,8 +275,8 @@
         "PTO remaining": 673.4
       },
       "sports": {
-        "Ride": 1.0,
-        "Walk": 3.0
+        "Walk": 3.0,
+        "Ride": 1.0
       }
     },
     {

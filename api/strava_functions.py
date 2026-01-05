@@ -182,7 +182,7 @@ def time_in_zones(athlete_id,hr_data, tot_time):
             zones["z3"] += sample_interval
         elif hr < zone_maxes[3]:
             zones["z4"] += sample_interval
-        else:
+        elif hr >= zone_maxes[3]:
             zones["z5"] += sample_interval
             
     return zones
@@ -410,7 +410,7 @@ def upload_to_github(data_to_upload):
         response = requests.put(url, headers=headers, data=json.dumps(payload))
         response.raise_for_status()
         print(f"Successfully uploaded new version of '{FILE_PATH}' to GitHub.")
-        print(f"Commit SHA: {response.json()['commit']['sha']}")
+        #print(f"Commit SHA: {response.json()['commit']['sha']}")
     except requests.exceptions.HTTPError as err:
         print(f"Error uploading file to GitHub: {err}")
         print(f"Response body: {err.response.text}")       

@@ -174,7 +174,9 @@ def time_in_zones(athlete_id,hr_data, tot_time):
 
     # Find time spent in each zone
     for hr in hr_data:
-        if hr < zone_maxes[0] and hr > min_hr:
+        if hr < min_hr:
+            continue
+        elif hr < zone_maxes[0]:
             zones["z1"] += sample_interval
         elif hr < zone_maxes[1]:
             zones["z2"] += sample_interval
@@ -182,7 +184,7 @@ def time_in_zones(athlete_id,hr_data, tot_time):
             zones["z3"] += sample_interval
         elif hr < zone_maxes[3]:
             zones["z4"] += sample_interval
-        elif hr >= zone_maxes[3]:
+        else:
             zones["z5"] += sample_interval
             
     return zones

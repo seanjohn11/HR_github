@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-05T23:37:16.197117-07:00",
+  "lastUpdated": "2026-01-05T23:39:11.124891-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -22,10 +22,10 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Ride": 1.0,
         "Run": 2.0,
         "WeightTraining": 1.0,
-        "Hike": 1.0
+        "Hike": 1.0,
+        "Ride": 1.0
       }
     },
     {
@@ -150,10 +150,10 @@
         "PTO remaining": 738.0
       },
       "sports": {
-        "Ride": 1.0,
-        "Walk": 1.0,
+        "Hike": 2.0,
         "WeightTraining": 2.0,
-        "Hike": 2.0
+        "Ride": 1.0,
+        "Walk": 1.0
       }
     },
     {
@@ -177,18 +177,18 @@
         "PTO remaining": 725.8
       },
       "sports": {
-        "Run": 4.0,
         "Pickleball": 1.0,
-        "Walk": 2.0
+        "Walk": 2.0,
+        "Run": 4.0
       }
     },
     {
       "name": "Glenn",
       "score": 164.7,
       "zones": {
-        "Z1": 41.651940504119295,
+        "Z1": 41.6519405041193,
         "Z2": 36.94984177263117,
-        "Z3": 4.232455395427312,
+        "Z3": 4.23245539542731,
         "Z4": 0.2844759753989397,
         "Z5": 0.0
       },
@@ -203,10 +203,10 @@
         "PTO remaining": 724.4
       },
       "sports": {
-        "Run": 1.0,
+        "WeightTraining": 1.0,
         "Ride": 2.0,
-        "Walk": 1.0,
-        "WeightTraining": 1.0
+        "Run": 1.0,
+        "Walk": 1.0
       }
     },
     {
@@ -255,10 +255,10 @@
         "PTO remaining": 750
       },
       "sports": {
-        "WeightTraining": 2.0,
         "Run": 2.0,
         "Ride": 1.0,
-        "Walk": 1.0
+        "Walk": 1.0,
+        "WeightTraining": 2.0
       }
     },
     {

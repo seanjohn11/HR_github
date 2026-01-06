@@ -148,8 +148,9 @@ def zone_builder(athlete_id):
     #user_vals = hr_secret[athlete_id]
     min = hr_secret[athlete_id]['hr_values'][0]
     res = hr_secret[athlete_id]['hr_values'][1] - hr_secret[athlete_id]['hr_values'][0]
-    min_hr = min + .4*res
-    
+    #min_hr = min + .4*res
+    min_hr = .5*hr_secret[athlete_id]['hr_values'][1]
+
     maxes = [math.floor(min + .6*res),
              math.floor(min + .7*res),
              math.floor(min + .8*res),

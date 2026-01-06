@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-05T18:31:23.951277-07:00",
+  "lastUpdated": "2026-01-05T18:33:24.102047-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -22,10 +22,10 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Hike": 1.0,
         "Ride": 1.0,
         "Run": 2.0,
-        "WeightTraining": 1.0
+        "WeightTraining": 1.0,
+        "Hike": 1.0
       }
     },
     {
@@ -57,7 +57,7 @@
       "name": "Joseph",
       "score": 182.3,
       "zones": {
-        "Z1": 29.01242607916221,
+        "Z1": 29.012426079162218,
         "Z2": 43.161192512572924,
         "Z3": 5.636938616195893,
         "Z4": 2.9042998932594117,
@@ -74,15 +74,15 @@
         "PTO remaining": 696.0
       },
       "sports": {
-        "Walk": 2.0,
-        "WeightTraining": 3.0
+        "WeightTraining": 3.0,
+        "Walk": 2.0
       }
     },
     {
       "name": "Nelson",
       "score": 167.3,
       "zones": {
-        "Z1": 28.078308788312324,
+        "Z1": 28.078308788312317,
         "Z2": 68.91262295139859,
         "Z3": 0.4212695564403073,
         "Z4": 0.3009068260287909,
@@ -99,9 +99,9 @@
         "PTO remaining": 716.3
       },
       "sports": {
+        "WeightTraining": 1.0,
         "Walk": 3.0,
-        "Pickleball": 1.0,
-        "WeightTraining": 1.0
+        "Pickleball": 1.0
       }
     },
     {
@@ -150,10 +150,10 @@
         "PTO remaining": 738.0
       },
       "sports": {
+        "Walk": 1.0,
         "WeightTraining": 2.0,
         "Hike": 2.0,
-        "Ride": 1.0,
-        "Walk": 1.0
+        "Ride": 1.0
       }
     },
     {
@@ -177,9 +177,9 @@
         "PTO remaining": 725.8
       },
       "sports": {
-        "Walk": 1.0,
         "Run": 4.0,
-        "Pickleball": 1.0
+        "Pickleball": 1.0,
+        "Walk": 1.0
       }
     },
     {
@@ -187,8 +187,8 @@
       "score": 150,
       "zones": {
         "Z1": 45.50267818439373,
-        "Z2": 48.55754044089207,
-        "Z3": 5.565694420209167,
+        "Z2": 48.55754044089206,
+        "Z3": 5.565694420209166,
         "Z4": 0.37408695450683827,
         "Z5": 0.0
       },
@@ -203,9 +203,9 @@
         "PTO remaining": 724.4
       },
       "sports": {
-        "Run": 1.0,
+        "WeightTraining": 1.0,
         "Ride": 2.0,
-        "WeightTraining": 1.0
+        "Run": 1.0
       }
     },
     {
@@ -229,8 +229,8 @@
         "PTO remaining": 686.5
       },
       "sports": {
-        "Yoga": 1.0,
-        "Workout": 1.0
+        "Workout": 1.0,
+        "Yoga": 1.0
       }
     },
     {
@@ -254,8 +254,8 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Run": 2.0,
-        "WeightTraining": 2.0
+        "WeightTraining": 2.0,
+        "Run": 2.0
       }
     },
     {

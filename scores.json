@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-07T05:48:38.566837-07:00",
+  "lastUpdated": "2026-01-07T05:50:34.213923-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -22,10 +22,10 @@
         "PTO remaining": 750
       },
       "sports": {
+        "Hike": 1.0,
         "Ride": 1.0,
         "Run": 2.0,
-        "WeightTraining": 1.0,
-        "Hike": 1.0
+        "WeightTraining": 1.0
       }
     },
     {
@@ -83,7 +83,7 @@
       "score": 190.4,
       "zones": {
         "Z1": 37.17265849861087,
-        "Z2": 59.61918538010724,
+        "Z2": 59.61918538010723,
         "Z3": 0.8941129020920285,
         "Z4": 0.35050765149366414,
         "Z5": 0.0
@@ -99,9 +99,9 @@
         "PTO remaining": 716.3
       },
       "sports": {
+        "WeightTraining": 1.0,
         "Walk": 4.0,
-        "Pickleball": 1.0,
-        "WeightTraining": 1.0
+        "Pickleball": 1.0
       }
     },
     {
@@ -125,16 +125,16 @@
         "PTO remaining": 750
       },
       "sports": {
-        "WeightTraining": 4.0,
-        "Walk": 5.0
+        "Walk": 5.0,
+        "WeightTraining": 4.0
       }
     },
     {
       "name": "Gabby",
       "score": 200.0,
       "zones": {
-        "Z1": 25.78764855296834,
-        "Z2": 41.9432251951344,
+        "Z1": 25.787648552968346,
+        "Z2": 41.943225195134396,
         "Z3": 6.026278029146424,
         "Z4": 3.610005009250603,
         "Z5": 0.14387792635679578
@@ -151,9 +151,9 @@
       },
       "sports": {
         "Hike": 2.0,
+        "WeightTraining": 2.0,
         "Ride": 1.0,
-        "Walk": 1.0,
-        "WeightTraining": 2.0
+        "Walk": 1.0
       }
     },
     {
@@ -177,9 +177,9 @@
         "PTO remaining": 725.8
       },
       "sports": {
-        "Run": 4.0,
         "Pickleball": 1.0,
-        "Walk": 2.0
+        "Walk": 2.0,
+        "Run": 4.0
       }
     },
     {
@@ -282,8 +282,8 @@
         "PTO remaining": 673.4
       },
       "sports": {
-        "Walk": 3.0,
-        "Ride": 2.0
+        "Ride": 2.0,
+        "Walk": 3.0
       }
     },
     {

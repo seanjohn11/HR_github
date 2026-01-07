@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-07T07:50:20.909142-07:00",
+  "lastUpdated": "2026-01-07T07:50:22.251148-07:00",
   "leaderboard": [
     {
       "name": "Sean",
@@ -22,10 +22,10 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Ride": 1.0,
         "Run": 2.0,
         "WeightTraining": 1.0,
-        "Hike": 1.0
+        "Hike": 1.0,
+        "Ride": 1.0
       }
     },
     {
@@ -125,8 +125,8 @@
         "PTO remaining": 750
       },
       "sports": {
-        "Walk": 5.0,
-        "WeightTraining": 4.0
+        "WeightTraining": 4.0,
+        "Walk": 5.0
       }
     },
     {
@@ -150,10 +150,10 @@
         "PTO remaining": 738.0
       },
       "sports": {
-        "Hike": 2.0,
-        "WeightTraining": 2.0,
         "Ride": 1.0,
-        "Walk": 1.0
+        "Walk": 1.0,
+        "WeightTraining": 2.0,
+        "Hike": 2.0
       }
     },
     {
@@ -186,9 +186,9 @@
       "name": "Glenn",
       "score": 164.7,
       "zones": {
-        "Z1": 41.6519405041193,
+        "Z1": 41.651940504119295,
         "Z2": 36.94984177263117,
-        "Z3": 4.23245539542731,
+        "Z3": 4.232455395427312,
         "Z4": 0.2844759753989397,
         "Z5": 0.0
       },
@@ -203,10 +203,10 @@
         "PTO remaining": 724.4
       },
       "sports": {
-        "WeightTraining": 1.0,
-        "Ride": 2.0,
         "Run": 1.0,
-        "Walk": 1.0
+        "Ride": 2.0,
+        "Walk": 1.0,
+        "WeightTraining": 1.0
       }
     },
     {
@@ -230,15 +230,15 @@
         "PTO remaining": 686.5
       },
       "sports": {
-        "Workout": 3.0,
-        "Yoga": 1.0
+        "Yoga": 1.0,
+        "Workout": 3.0
       }
     },
     {
       "name": "Brad",
       "score": 280.2,
       "zones": {
-        "Z1": 25.09332287025704,
+        "Z1": 25.093322870257044,
         "Z2": 39.854633676085335,
         "Z3": 13.421847559653296,
         "Z4": 0.48400360648111374,
@@ -255,10 +255,10 @@
         "PTO remaining": 750
       },
       "sports": {
-        "WeightTraining": 3.0,
         "Run": 3.0,
         "Ride": 1.0,
-        "Walk": 1.0
+        "Walk": 1.0,
+        "WeightTraining": 3.0
       }
     },
     {
@@ -282,8 +282,8 @@
         "PTO remaining": 673.4
       },
       "sports": {
-        "Ride": 2.0,
-        "Walk": 3.0
+        "Walk": 3.0,
+        "Ride": 2.0
       }
     },
     {

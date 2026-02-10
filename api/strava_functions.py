@@ -18,6 +18,7 @@ from upstash_redis import Redis
 from collections import defaultdict
 import ast
 import pytz
+import numpy as np
 
 def token_expired(expires_at):
     """Check if the Strava token is expired."""
@@ -134,12 +135,13 @@ def activity_handler(athlete_id, activity_id):
     # Get HR stream
     headers = {'Authorization': f'Bearer {user_creds["access_token"]}'}
     stream_url = f"https://www.strava.com/api/v3/activities/{activity_id}/streams"
-    stream_params = {'keys': 'heartrate', 'key_by_type': 'true'}
+    stream_params = {'keys': 'heartrate,time', 'key_by_type': 'true'}
     
     stream_resp = requests.get(stream_url, headers=headers, params=stream_params)
     if stream_resp.status_code == 200:
         hr_stream = stream_resp.json().get('heartrate', {}).get('data', [])
-    return activity_data, hr_stream
+        time_stream = stream_resp.json().get('heartrate',{}).get('data',[])
+    return activity_data, hr_stream, time_stream
 
 def zone_builder(athlete_id):
     """This builds a list that holds the top hr 
@@ -150,14 +152,13 @@ def zone_builder(athlete_id):
     res = hr_secret[athlete_id]['hr_values'][1] - hr_secret[athlete_id]['hr_values'][0]
     #min_hr = min + .4*res
     min_hr = .5*hr_secret[athlete_id]['hr_values'][1]
-
     maxes = [math.floor(min + .6*res),
              math.floor(min + .7*res),
              math.floor(min + .8*res),
              math.floor(min + .9*res)]
     return maxes, min_hr
 
-def time_in_zones(athlete_id,hr_data, tot_time):
+def time_in_zones(athlete_id,hr_data, time_data):
     """
     takes the hr data and athlete_id and calculates times
     inside the 5 zones and returns a dictionary with that information
@@ -167,40 +168,56 @@ def time_in_zones(athlete_id,hr_data, tot_time):
     if n_samples == 0:
         #print(f"Activity Score: {activity_score/60:.1f}")
         return zones
-
-    sample_interval = tot_time / n_samples
-
+    # --- START WEIGHT CALCULATION ---
+    # Convert to numpy for vector operations
+    t = np.array(time_data)
+    # 1. Identify unique timestamps and how many HR points share them
+    # This handles the "whole second" quantization issue.
+    unique_times, counts = np.unique(t, return_counts=True)
+    # 2. Calculate the duration of each unique time block
+    # We diff against the NEXT unique time. 
+    # We append (last_time + 1) to give the final point a default 1s duration.
+    block_durations = np.diff(unique_times, append=unique_times[-1] + 1)
+    # 3. Filter Pauses
+    # If a gap is larger than 10 seconds, we assume the device was paused 
+    # or Auto-Paused. We clamp this duration to 1s to avoid inflating the zone time.
+    block_durations[block_durations > 10] = 1.0
+    # 4. Distribute duration among points sharing that timestamp
+    # e.g., if 2 points share a 1s block, each gets 0.5s weight.
+    weight_per_block = block_durations / counts
+    # 5. Expand back to match the original hr_data length
+    weights = np.repeat(weight_per_block, counts)
+    # --- END WEIGHT CALCULATION --
     # Define Athlete Specific Zones
     zone_maxes, min_hr = zone_builder(athlete_id)
-
     # Find time spent in each zone
-    for hr in hr_data:
+    # We zip hr_data with our calculated weights to increment correctly
+    for hr, duration in zip(hr_data, weights):
         if hr < min_hr:
             continue
         elif hr < zone_maxes[0]:
-            zones["z1"] += sample_interval
+            zones["z1"] += duration
         elif hr < zone_maxes[1]:
-            zones["z2"] += sample_interval
+            zones["z2"] += duration
         elif hr < zone_maxes[2]:
-            zones["z3"] += sample_interval
+            zones["z3"] += duration
         elif hr < zone_maxes[3]:
-            zones["z4"] += sample_interval
+            zones["z4"] += duration
         else:
-            zones["z5"] += sample_interval
-            
-    return zones
+            zones["z5"] += duration
+    return zones, np.sum(weights)
     
     
 def activity_processing(athlete_id, activity_id):
     """This handles the activity data received from a request and
     only pulls and saves the hr data needed for the competition"""
-    activity_data, hr_data = activity_handler(athlete_id, activity_id)
+    activity_data, hr_data, time_data = activity_handler(athlete_id, activity_id)
     print("Successfully pulled activity data")
-    zone_info = time_in_zones(athlete_id,hr_data, activity_data['elapsed_time'])
+    zone_info, tot_time = time_in_zones(athlete_id,hr_data, time_data)
     print("Successfully managed zone times")
     # add in sport_type and total elapsed_time and date
     zone_info["sport"] = activity_data["sport_type"]
-    zone_info["tot_time"] = activity_data["elapsed_time"]
+    zone_info["tot_time"] = tot_time
     activity_date = activity_data.get('start_date_local')
     dt = parser.parse(activity_date)
     date_str = dt.strftime("%Y-%m-%d")

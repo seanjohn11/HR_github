@@ -1,0 +1,13 @@
+name: Update Last Day Activities
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel Serverless Function
+        run: |
+          curl -X POST "https://hr-github.vercel.app/api/update_last_day" \
+          -H "Authorization: Bearer ${{ secrets.VERCEL_MANUAL_SECRET }}"

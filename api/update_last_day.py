@@ -14,6 +14,9 @@ import numpy as np
 import math
 from upstash_redis import Redis
 from dateutil import parser
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
 
 def token_expired(expires_at):
     """Check if the Strava token is expired."""
@@ -244,44 +247,56 @@ def zone_builder(athlete_id):
              math.floor(min + .9*res)]
     return maxes, min_hr
 
-def main():
-    "Should update all activities done within the past 24 hours"
-    "Built so I can fix bugs that changes made"
+@app.route('/api/update_last_day', methods=['POST'])
+def update_last_day():
+    # 1. Security Check: Verify the secret token from the request header
+    auth_header = request.headers.get('Authorization')
+    expected_token = f"Bearer {os.environ.get('VERCEL_MANUAL_SECRET')}"
+
+    if not auth_header or auth_header != expected_token:
+        return jsonify(message="Unauthorized"), 401
+
+    # 2. Your Script's Logic Goes Here
     try:
-        client_id = os.environ.get("STRAVA_CLIENT_ID")
-        client_secret = os.environ.get("STRAVA_CLIENT_SECRET")
-        users = json.loads(os.environ.get("STRAVA_USERS"))
-        #hr_data_config = json.loads(os.environ["HR_DATA"])
-    except (KeyError, json.JSONDecodeError) as e:
-        print(f"Error: Missing or invalid environment variable. Please check your GitHub Secrets. Details: {e}")
-        return
-    
-    kv_url = os.environ.get("KV_REST_API_URL")
-    kv_token = os.environ.get("KV_REST_API_TOKEN")
-    redis = Redis(url=kv_url, token=kv_token)
-    
-    after_time = int(time.time()) - 86400
-    
-    athlete_iterator = 1
-    for athlete_id, user_creds in users.items():
-        print(f"\n Checking athlete: {athlete_iterator}")
+        "Should update all activities done within the past 24 hours"
+        "Built so I can fix bugs that changes made"
+        try:
+            client_id = os.environ.get("STRAVA_CLIENT_ID")
+            client_secret = os.environ.get("STRAVA_CLIENT_SECRET")
+            users = json.loads(os.environ.get("STRAVA_USERS"))
+            #hr_data_config = json.loads(os.environ["HR_DATA"])
+        except (KeyError, json.JSONDecodeError) as e:
+            print(f"Error: Missing or invalid environment variable. Please check your GitHub Secrets. Details: {e}")
+            return
         
-        if token_expired(user_creds["expires_at"]):
-            token_data = refresh_strava_token(client_id, client_secret, user_creds, athlete_id)
-            user_creds["access_token"] = token_data["access_token"]
-            user_creds["refresh_token"] = token_data["refresh_token"]
-            user_creds["expires_at"] = token_data["expires_at"]
-        activities = get_activities(user_creds, after_time)
-        if not activities:
-            print("No recent activites found")
-            continue
-        for activity in activities:
-            activity_id = str(activity['id'])
-            processed_data = activity_processing(athlete_id, activity_id)
+        kv_url = os.environ.get("KV_REST_API_URL")
+        kv_token = os.environ.get("KV_REST_API_TOKEN")
+        redis = Redis(url=kv_url, token=kv_token)
+        
+        after_time = int(time.time()) - 86400
+        
+        athlete_iterator = 1
+        for athlete_id, user_creds in users.items():
+            print(f"\n Checking athlete: {athlete_iterator}")
             
-            redis.hset(athlete_id, activity_id, str(processed_data))
-            
-        athlete_iterator += 1
-    
-if __name__ == "__main__":
-    main()
+            if token_expired(user_creds["expires_at"]):
+                token_data = refresh_strava_token(client_id, client_secret, user_creds, athlete_id)
+                user_creds["access_token"] = token_data["access_token"]
+                user_creds["refresh_token"] = token_data["refresh_token"]
+                user_creds["expires_at"] = token_data["expires_at"]
+            activities = get_activities(user_creds, after_time)
+            if not activities:
+                print("No recent activites found")
+                continue
+            for activity in activities:
+                activity_id = str(activity['id'])
+                processed_data = activity_processing(athlete_id, activity_id)
+                
+                redis.hset(athlete_id, activity_id, str(processed_data))
+                
+            athlete_iterator += 1
+        return jsonify(message="Script executed successfully."), 200
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify(message="An error occurred during script execution."), 500

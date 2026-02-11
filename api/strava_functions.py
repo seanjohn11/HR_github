@@ -140,7 +140,7 @@ def activity_handler(athlete_id, activity_id):
     stream_resp = requests.get(stream_url, headers=headers, params=stream_params)
     if stream_resp.status_code == 200:
         hr_stream = stream_resp.json().get('heartrate', {}).get('data', [])
-        time_stream = stream_resp.json().get('heartrate',{}).get('data',[])
+        time_stream = stream_resp.json().get('time',{}).get('data',[])
     return activity_data, hr_stream, time_stream
 
 def zone_builder(athlete_id):
@@ -215,6 +215,14 @@ def activity_processing(athlete_id, activity_id):
     print("Successfully pulled activity data")
     zone_info, tot_time = time_in_zones(athlete_id,hr_data, time_data)
     print("Successfully managed zone times")
+    # --- SANITIZATION STEP ---
+    # Convert all numpy types in the dictionary to standard Python floats
+    # This prevents 'np.float64(...)' from appearing in your Redis string
+    zone_info = {k: float(v) for k, v in zone_info.items()}
+    
+    # Also convert tot_time from numpy to standard float
+    tot_time = float(tot_time)
+    # -------------------------
     # add in sport_type and total elapsed_time and date
     zone_info["sport"] = activity_data["sport_type"]
     zone_info["tot_time"] = tot_time
@@ -319,7 +327,7 @@ def update_scores():
         athlete_sports = defaultdict(float)
         print(f"Beginning work for athlete: {athlete_number}")
         for activity, zone_data in activities.items():
-            zone_data = eval(zone_data)
+            zone_data = ast.literal_eval(zone_data)
             act_score = 0
             act_score += zone_data['z1'] + zone_data['z2'] + zone_data['z3'] + 2*(zone_data['z4'] + zone_data['z5'])
             act_score /= 60

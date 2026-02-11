@@ -319,7 +319,7 @@ def update_scores():
         athlete_sports = defaultdict(float)
         print(f"Beginning work for athlete: {athlete_number}")
         for activity, zone_data in activities.items():
-            zone_data = ast.literal_eval(zone_data)
+            zone_data = eval(zone_data)
             act_score = 0
             act_score += zone_data['z1'] + zone_data['z2'] + zone_data['z3'] + 2*(zone_data['z4'] + zone_data['z5'])
             act_score /= 60

@@ -192,7 +192,7 @@ def time_in_zones(athlete_id,hr_data, time_data):
     n_samples = len(hr_data)
     if n_samples == 0:
         #print(f"Activity Score: {activity_score/60:.1f}")
-        return zones
+        return zones, 0
     # --- START WEIGHT CALCULATION ---
     # Convert to numpy for vector operations
     t = np.array(time_data)

@@ -179,9 +179,9 @@ def time_in_zones(athlete_id,hr_data, time_data):
     # We append (last_time + 1) to give the final point a default 1s duration.
     block_durations = np.diff(unique_times, append=unique_times[-1] + 1)
     # 3. Filter Pauses
-    # If a gap is larger than 10 seconds, we assume the device was paused 
+    # If a gap is larger than 300 seconds, we assume the device was paused 
     # or Auto-Paused. We clamp this duration to 1s to avoid inflating the zone time.
-    block_durations[block_durations > 10] = 1.0
+    block_durations[block_durations > 300] = 1.0
     # 4. Distribute duration among points sharing that timestamp
     # e.g., if 2 points share a 1s block, each gets 0.5s weight.
     weight_per_block = block_durations / counts

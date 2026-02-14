@@ -272,9 +272,10 @@
             leaderboardData.forEach((person, index) => {
                 // If this is not the first person, check if their score is lower than the previous one
                 if (index > 0 && person.score < leaderboardData[index - 1].score) {
-                    currentRank = index + 1; // Standard ranking (1, 2, 3...)
-                    // If you prefer Dense ranking (1, 2, 2, 3), use currentRank++ logic instead
+                    // DENSE RANKING: Just add 1 to the previous rank
+                    currentRank++;
                 }
+                // If the score is the same (tie), currentRank stays the same
 
                 // Determine the display icon/text
                 let rankDisplay;

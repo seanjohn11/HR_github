@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-900 text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Challenges - Family Fitness</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Tab Styles (Reused from Index) */
+        .tab-button {
+            transition: all 0.2s ease-in-out;
+            border-bottom: 3px solid transparent;
+            color: #9ca3af; /* gray-400 */
+        }
+        .tab-button:hover {
+            color: #d1d5db; /* gray-300 */
+        }
+        .tab-button.active {
+            border-bottom-color: #22d3ee; /* cyan-400 */
+            color: #22d3ee;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hide scrollbar for tab container but allow scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="container mx-auto max-w-4xl">
+        
+        <header class="text-center mb-8 relative">
+            <a href="index.html" class="absolute left-0 top-2 text-gray-400 hover:text-white transition-colors flex items-center text-sm md:text-base">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back
+            </a>
+
+            <h1 class="text-3xl md:text-5xl font-bold text-cyan-400 mt-8 md:mt-0">Monthly Challenges</h1>
+            <p class="text-gray-400 mt-2">Don't lose or Morgan will punish you.</p>
+        </header>
+
+        <main class="bg-gray-800 rounded-lg shadow-xl p-6 min-h-[400px]">
+            
+            <div class="border-b border-gray-700 pb-2 mb-6">
+                <div class="flex space-x-6 overflow-x-auto no-scrollbar pb-2" id="month-tabs">
+                    <button class="tab-button active text-lg font-semibold whitespace-nowrap px-2" data-target="feb">February</button>
+                    <button class="tab-button text-lg font-semibold whitespace-nowrap px-2" data-target="mar">March</button>
+                    <button class="tab-button text-lg font-semibold whitespace-nowrap px-2" data-target="apr">April</button>
+                    <button class="tab-button text-lg font-semibold whitespace-nowrap px-2" data-target="may">May</button>
+                    <button class="tab-button text-lg font-semibold whitespace-nowrap px-2" data-target="jun">June</button>
+                    <button class="tab-button text-lg font-semibold whitespace-nowrap px-2" data-target="jul">July</button>
+                    <button class="tab-button text-lg font-semibold whitespace-nowrap px-2" data-target="aug">August</button>
+                    <button class="tab-button text-lg font-semibold whitespace-nowrap px-2" data-target="sep">September</button>
+                    <button class="tab-button text-lg font-semibold whitespace-nowrap px-2" data-target="oct">October</button>
+                    <button class="tab-button text-lg font-semibold whitespace-nowrap px-2" data-target="nov">November</button>
+                    <button class="tab-button text-lg font-semibold whitespace-nowrap px-2" data-target="dec">December</button>
+                </div>
+            </div>
+
+            <div id="content-container">
+                
+                <div id="feb" class="tab-content active space-y-4">
+    <div class="bg-gray-700 p-6 rounded-lg border-l-4 border-cyan-400">
+        <h2 class="text-2xl font-bold text-white">🍺 No Soda Month</h2>
+        <p class="text-gray-300 mt-2">
+            1 point for each day without soda.<br>
+            5 points for each full week without soda.
+        </p>
+        
+        <div class="mt-6 grid grid-cols-2 gap-4">
+            
+            <div class="bg-gray-800 rounded-xl p-4 border border-gray-600 shadow-lg flex flex-col justify-between">
+                <div class="text-center mb-4">
+                    <h3 class="text-xl font-bold text-cyan-400 border-b border-gray-600 pb-2 mb-3">Team 1</h3>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                        <li>Tiffanie</li>
+                        <li>Robyn</li>
+                        <li>Brad</li>
+                        <li>Sean</li>
+                        <li>Glenn</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-900 rounded-lg p-3 text-center mt-auto">
+                    <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Total Score</p>
+                    <p class="text-4xl font-bold text-white">0</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-xl p-4 border border-gray-600 shadow-lg flex flex-col justify-between">
+                <div class="text-center mb-4">
+                    <h3 class="text-xl font-bold text-purple-400 border-b border-gray-600 pb-2 mb-3">Team 2</h3>
+                    <ul class="text-gray-300 text-sm space-y-1">
+                        <li>Matt</li>
+                        <li>Nelson</li>
+                        <li>Morgan</li>
+                        <li>Gabby</li>
+                        <li>Kailey</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-900 rounded-lg p-3 text-center mt-auto">
+                    <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Total Score</p>
+                    <p class="text-4xl font-bold text-white">0</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+                <div id="mar" class="tab-content space-y-4">
+                    <div class="bg-gray-700 p-6 rounded-lg border-l-4 border-green-500">
+                        <h2 class="text-2xl font-bold text-white">⚔️ In-laws vs. Out-laws</h2>
+                        <p class="text-gray-300 mt-2">Total points from main leaderboard for March with no daily or weekly cap on points.<br>Which side truly does more?</p>
+                    </div>
+                </div>
+
+                <div id="apr" class="tab-content space-y-4">
+                    <div class="bg-gray-700 p-6 rounded-lg border-l-4 border-yellow-500">
+                        <h2 class="text-2xl font-bold text-white">🎉 Build Your Social Circle</h2>
+                        <p class="text-gray-300 mt-2">Invite nonrelatives to dinner or social activity twice during the month.</p>
+                    </div>
+                </div>
+
+                <div id="may" class="tab-content space-y-4">
+                    <div class="bg-gray-700 p-6 rounded-lg border-l-4 border-pink-500">
+                        <h2 class="text-2xl font-bold text-white">👣 Step Count</h2>
+                        <p class="text-gray-300 mt-2">Walk more than 6000 steps a day for 5 days a week.</p>
+                    </div>
+                </div>
+
+                <div id="jun" class="tab-content space-y-4">
+                    <div class="bg-gray-700 p-6 rounded-lg border-l-4 border-orange-500">
+                        <h2 class="text-2xl font-bold text-white">⛪ Temple Attendance</h2>
+                        <p class="text-gray-300 mt-2">Attend temple services at least twice during the month.</p>
+                    </div>
+                </div>
+
+                <div id="jul" class="tab-content space-y-4">
+                    <div class="bg-gray-700 p-6 rounded-lg border-l-4 border-red-500">
+                        <h2 class="text-2xl font-bold text-white">🏏 New Sport</h2>
+                        <p class="text-gray-300 mt-2">Get 150 points in a new sport/workout you haven't scored in yet.<br>Subject to daily and weekly limits.</p>
+                    </div>
+                </div>
+
+                <div id="aug" class="tab-content space-y-4">
+                    <div class="bg-gray-700 p-6 rounded-lg border-l-4 border-purple-500">
+                        <h2 class="text-2xl font-bold text-white">🧠 Mental Health</h2>
+                        <p class="text-gray-300 mt-2">Meditation/Mindfulness 5 days a week for 5 minutes</p>
+                    </div>
+                </div>
+
+                <div id="sep" class="tab-content space-y-4">
+                    <div class="bg-gray-700 p-6 rounded-lg border-l-4 border-indigo-500">
+                        <h2 class="text-2xl font-bold text-white">💗 Date Night</h2>
+                        <p class="text-gray-300 mt-2">Take your honey out on two dates this month.<br>Each date only counts for one person in the couple.</p>
+                    </div>
+                </div>
+
+                <div id="oct" class="tab-content space-y-4">
+                    <div class="bg-gray-700 p-6 rounded-lg border-l-4 border-orange-600">
+                        <h2 class="text-2xl font-bold text-white">🥦 Eat Your Veggies</h2>
+                        <p class="text-gray-300 mt-2">Eat a vegetable with dinner at least 5 days a week.<br> French fries don't count.</p>
+                    </div>
+                </div>
+
+                <div id="nov" class="tab-content space-y-4">
+                    <div class="bg-gray-700 p-6 rounded-lg border-l-4 border-amber-700">
+                        <h2 class="text-2xl font-bold text-white">🦃 Gratitude</h2>
+                        <p class="text-gray-300 mt-2">Gratitude journal at least one thing everyday.</p>
+                    </div>
+                </div>
+
+                <div id="dec" class="tab-content space-y-4">
+                    <div class="bg-gray-700 p-6 rounded-lg border-l-4 border-blue-400">
+                        <h2 class="text-2xl font-bold text-white">❄️ Service Project</h2>
+                        <p class="text-gray-300 mt-2">Christmas service project of choice.</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            setupTabs();
+            activateCurrentMonth();
+        });
+
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    // Smooth scroll the tab into view if on mobile
+                    e.target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+                    const targetId = tab.dataset.target;
+                    
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(content => content.classList.remove('active'));
+
+                    // Add active class to clicked tab and target content
+                    tab.classList.add('active');
+                    const targetContent = document.getElementById(targetId);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        function activateCurrentMonth() {
+            const date = new Date();
+            const monthIndex = date.getMonth(); // 0 = Jan, 1 = Feb, etc.
+            
+            // Map month index to our ID strings
+            // Note: Array index 1 is Feb because 0 is Jan
+            const monthIds = [null, 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+            
+            // Check if current month is within our range (Feb-Dec)
+            if (monthIndex >= 1 && monthIndex <= 11) {
+                const targetId = monthIds[monthIndex];
+                const tabToClick = document.querySelector(`.tab-button[data-target="${targetId}"]`);
+                
+                if (tabToClick) {
+                    tabToClick.click();
+                }
+            } else {
+                // Default to Feb if it's January
+                document.querySelector(`.tab-button[data-target="feb"]`).click();
+            }
+        }
+    </script>
+</body>
+</html>

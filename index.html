@@ -103,11 +103,12 @@
 
         <main class="bg-gray-800 rounded-lg shadow-xl p-6">
             <div class="border-b border-gray-700 pb-4">
-                <div id="tabs" class="flex space-x-4 md:space-x-8">
-                    <button class="tab-button active py-2 px-1 text-lg font-semibold" data-target="leaderboard-content">Leaderboard</button>
-                    <button class="tab-button py-2 px-1 text-lg font-semibold" data-target="zones-content">% Zones</button>
-                    <button class="tab-button py-2 px-1 text-lg font-semibold" data-target="last-week-content">Last week</button>
-                    <button class="tab-button py-2 px-1 text-lg font-semibold" data-target="sports-content">Sports</button>
+                <div id="tabs" class="flex space-x-4 md:space-x-8 overflow-x-auto">
+                    <button class="tab-button active py-2 px-1 text-lg font-semibold whitespace-nowrap" data-target="leaderboard-content">Leaderboard</button>
+                    <button class="tab-button py-2 px-1 text-lg font-semibold whitespace-nowrap" data-target="goal-content">Goal</button>
+                    <button class="tab-button py-2 px-1 text-lg font-semibold whitespace-nowrap" data-target="zones-content">% Zones</button>
+                    <button class="tab-button py-2 px-1 text-lg font-semibold whitespace-nowrap" data-target="last-week-content">Last week</button>
+                    <button class="tab-button py-2 px-1 text-lg font-semibold whitespace-nowrap" data-target="sports-content">Sports</button>
                 </div>
             </div>
 
@@ -120,12 +121,16 @@
                 <div id="leaderboard-content" class="tab-content active space-y-4">
                     <p class="text-center text-gray-400">Fetching the latest scores...</p>
                 </div>
+                
+                <div id="goal-content" class="tab-content space-y-6">
+                </div>
+
                 <div id="zones-content" class="tab-content space-y-6">
-                    </div>
+                </div>
                 <div id="last-week-content" class="tab-content">
-                    </div>
+                </div>
                 <div id="sports-content" class="tab-content space-y-6">
-                    </div>
+                </div>
             </div>
         </main>
         
@@ -187,6 +192,7 @@
 
                     // Render all tabs
                     renderLeaderboard(data.leaderboard);
+                    renderGoal(data); // NEW FUNCTION CALL
                     renderZones(data.leaderboard);
                     renderLastWeek(data.leaderboard);
                     renderSports(data.leaderboard);
@@ -219,6 +225,43 @@
             });
         }
 
+        // NEW RENDER FUNCTION FOR THE GOAL TAB
+        function renderGoal(data) {
+            const container = document.getElementById('goal-content');
+            container.innerHTML = '';
+            
+            const targetScore = 100000;
+            // Handle edge case where total_score might not exist in older JSON versions
+            const currentScore = data.total_score || 0;
+            const potentialScore = data.potential || 0;
+
+            // Calculate percentage, maxing out at 100% for the visual bar
+            let percentage = (currentScore / targetScore) * 100;
+            if (percentage > 100) percentage = 100;
+
+            const html = `
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md text-center">
+                    <h2 class="text-2xl font-bold text-white mb-6">Team Goal: 100,000 Points</h2>
+                    
+                    <div class="relative w-full h-12 bg-gray-600 rounded-full shadow-inner overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-1000 ease-out flex items-center justify-center"
+                             style="width: ${percentage}%">
+                        </div>
+                        
+                        <div class="absolute inset-0 flex items-center justify-center font-bold text-lg md:text-xl text-white drop-shadow-md">
+                            ${Math.round(currentScore).toLocaleString()} / 100,000
+                        </div>
+                    </div>
+
+                    <div class="mt-6 text-gray-300 text-lg">
+                        Max possible score: <span class="text-cyan-400 font-bold">${potentialScore.toLocaleString()}</span>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
         function renderLeaderboard(leaderboardData) {
             const container = document.getElementById('leaderboard-content');
             container.innerHTML = '';
@@ -229,10 +272,9 @@
             leaderboardData.forEach((person, index) => {
                 // If this is not the first person, check if their score is lower than the previous one
                 if (index > 0 && person.score < leaderboardData[index - 1].score) {
-                    // DENSE RANKING: Just add 1 to the previous rank
-                    currentRank++;
+                    currentRank = index + 1; // Standard ranking (1, 2, 3...)
+                    // If you prefer Dense ranking (1, 2, 2, 3), use currentRank++ logic instead
                 }
-                // If the score is the same (tie), currentRank stays the same
 
                 // Determine the display icon/text
                 let rankDisplay;
@@ -293,26 +335,36 @@
             container.innerHTML = '';
             if (leaderboardData.length === 0) return;
 
-            const headers = Object.keys(leaderboardData[0].last_7);
+            // Get headers from the first person's last_7 object, filtering out 'PTO remaining' for the header row
+            const headers = Object.keys(leaderboardData[0].last_7).filter(key => key !== 'PTO remaining');
+            
             let table = `
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-gray-700">
-                                <th class="p-3 font-semibold">Name</th>
-                                ${headers.map(day => `<th class="p-3 font-semibold text-center">${day}</th>`).join('')}
+                                <th class="p-3 font-semibold whitespace-nowrap">Name</th>
+                                ${headers.map(day => `<th class="p-3 font-semibold text-center whitespace-nowrap">${day}</th>`).join('')}
+                                <th class="p-3 font-semibold text-center whitespace-nowrap">PTO Left</th>
                             </tr>
                         </thead>
                         <tbody>
             `;
 
             leaderboardData.forEach(person => {
-                table += `<tr class="border-b border-gray-700">`;
-                table += `<td class="p-3 font-medium">${person.name}</td>`;
+                table += `<tr class="border-b border-gray-700 hover:bg-gray-600 transition-colors">`;
+                table += `<td class="p-3 font-medium whitespace-nowrap">${person.name}</td>`;
+                
                 headers.forEach(day => {
                     const score = person.last_7[day];
+                    // Highlight non-zero scores
                     table += `<td class="p-3 text-center ${score > 0 ? 'text-cyan-400 font-bold' : 'text-gray-400'}">${score}</td>`;
                 });
+                
+                // Add PTO column
+                const pto = person.last_7['PTO remaining'];
+                table += `<td class="p-3 text-center font-medium text-yellow-400">${pto}</td>`;
+                
                 table += `</tr>`;
             });
 
@@ -344,7 +396,7 @@
 
                     const barHtml = `
                         <div class="flex items-center">
-                            <span class="w-20 font-medium text-sm text-gray-400">${sport}</span>
+                            <span class="w-24 font-medium text-sm text-gray-400 truncate pr-2" title="${sport}">${sport}</span>
                             <div class="w-full bg-gray-700 rounded-md">
                                 <div class="chart-bar" style="width: ${percentage.toFixed(1)}%; background-color: ${color};">
                                     ${count} ${count > 1 ? 'times' : 'time'}

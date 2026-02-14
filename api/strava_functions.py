@@ -380,7 +380,7 @@ def update_scores():
             remaining_week_potential += potential
         else:
             remaining_week_potential += min(potential, (7-mountain_time.weekday())*50+athlete['last_7']['PTO remaining'])
-    future_week_potential = (52-int(mountain_time.strftime("%W")))*150
+    future_week_potential = (52-int(mountain_time.strftime("%W")))*150*athlete_number
     potential_max = current_fam_score + remaining_week_potential + future_week_potential
     
     final_data = {

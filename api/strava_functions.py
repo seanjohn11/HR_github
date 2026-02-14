@@ -361,9 +361,33 @@ def update_scores():
 
     mountain_tz = pytz.timezone('America/Denver')
     mountain_time = datetime.now(mountain_tz)
+    current_fam_score = sum(athlete['score'] for athlete in score_board_list )
+    remaining_week_potential = 0
+    for athlete in score_board_list:
+        found_monday = False
+        this_week = 0
+        for key,value in athlete['last_7'].items():
+            if key == "PTO remaining":
+                continue
+            if "Mon" in key:
+                found_monday = True
+            if found_monday:
+                this_week += value
+        potential = 150 - this_week
+        if mountain_time.weekday() < 5:
+            remaining_week_potential += potential
+        elif potential < athlete['last_7']['PTO remaining']:
+            remaining_week_potential += potential
+        else:
+            remaining_week_potential += min(potential, (7-mountain_time.weekday())*50+athlete['last_7']['PTO remaining'])
+    future_week_potential = (52-int(mountain_time.strftime("%W")))*150
+    potential_max = current_fam_score + remaining_week_potential + future_week_potential
+    
     final_data = {
         "lastUpdated": mountain_time.isoformat(),
-        "leaderboard": score_board_list
+        "leaderboard": score_board_list,
+        "total_score": current_fam_score,
+        "potential": potential_max
     }
 
     upload_to_github(final_data)

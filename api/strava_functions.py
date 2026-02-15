@@ -373,7 +373,7 @@ def update_scores():
                 found_monday = True
             if found_monday:
                 this_week += value
-        potential = 150 - this_week
+        potential = max(150 - this_week,0)
         if mountain_time.weekday() < 5:
             remaining_week_potential += potential
         elif potential < athlete['last_7']['PTO remaining']:

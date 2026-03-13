@@ -307,6 +307,7 @@ def update_scores():
     per_zone = {}
     last_7 = {}
     sport_choice = {}
+    march = {}
     
     STRAVA_USERS = json.loads(STRAVA_USERS)
     
@@ -318,6 +319,7 @@ def update_scores():
         athlete_number += 1
         activities = redis.hgetall(athlete_id)
         raw_daily_scores = defaultdict(float)
+        march_score = 0
         zone1 = 0
         zone2 = 0
         zone3 = 0
@@ -332,7 +334,9 @@ def update_scores():
             act_score += zone_data['z1'] + zone_data['z2'] + zone_data['z3'] + 2*(zone_data['z4'] + zone_data['z5'])
             act_score /= 60
             date_obj = date.fromisoformat(zone_data['date'])
-            raw_daily_scores[date_obj] += act_score 
+            raw_daily_scores[date_obj] += act_score
+            if date_obj.month == 3:
+                march_score += act_score
             zone1 += zone_data['z1']
             zone2 += zone_data['z2']
             zone3 += zone_data['z3']
@@ -353,11 +357,12 @@ def update_scores():
                                       "Z5":0}
         last_7[athlete_name] = athlete_week
         sport_choice[athlete_name] = athlete_sports
+        march[athlete_name] = march_score
         print(f"Finished work for athlete: {athlete_number}")
     
     print("Compiling information for scores.json")
     score_board_list = [{"name": name, "score": round(score_board[name],1), "zones" : per_zone[name],
-                         "last_7": last_7[name], "sports": sport_choice[name]} for name, score in score_board.items()]
+                         "last_7": last_7[name], "sports": sport_choice[name], "march": march[name]} for name, score in score_board.items()]
 
     mountain_tz = pytz.timezone('America/Denver')
     mountain_time = datetime.now(mountain_tz)

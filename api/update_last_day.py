@@ -172,15 +172,30 @@ def get_activities(user_creds, after_timestamp):
     params = {'after': after_timestamp, 'per_page': 50}
     activities = []
     page = 1
+
     while True:
         params['page'] = page
-        response = requests.get('https://www.strava.com/api/v3/athlete/activities', headers=headers, params=params)
-        response.raise_for_status()
+
+        response = requests.get(
+            'https://www.strava.com/api/v3/athlete/activities',
+            headers=headers,
+            params=params
+        )
+
+        if response.status_code != 200:
+            print(f"Strava error status: {response.status_code}")
+            print(f"Strava error response: {response.text}")
+            print(f"Response headers: {dict(response.headers)}")
+            response.raise_for_status()
+
         data = response.json()
+
         if not data:
             break
+
         activities.extend(data)
         page += 1
+
     return activities
 
 def time_in_zones(athlete_id,hr_data, time_data):

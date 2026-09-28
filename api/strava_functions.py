@@ -9,7 +9,6 @@ Created on Tue Sep 30 22:45:37 2025
 import os
 import json
 import time
-import base64
 import requests
 import math
 from datetime import date, timedelta, datetime
@@ -395,79 +394,10 @@ def update_scores():
         "potential": potential_max
     }
 
-    upload_to_github(final_data)
+    redis = Redis(url=KV_REST_API_URL,
+                    token=KV_REST_API_TOKEN)
 
-    print("Successfully updated scores.json")
-    
-     
+    redis.set("scores_json", json.dumps(final_data))
 
-def upload_to_github(data_to_upload):
-    """
-    Creates or updates a file in a GitHub repository.
-    """
-    print("Trying to upload new information to Github")
-    # --- Configuration ---
-    # Your GitHub username or organization name
-    REPO_OWNER = os.environ.get('GITHUB_REPO_OWNER')
-    # The name of your repository
-    REPO_NAME = os.environ.get('GITHUB_REPO_NAME')         
-    # The path to the file in your repository
-    FILE_PATH = "scores.json"             
-    # Securely get the token from Vercel's environment variables
-    GITHUB_TOKEN = os.environ.get("PAT_FOR_SECRETS")
-    
-    if not GITHUB_TOKEN:
-        print("Error: GITHUB_API_TOKEN environment variable not set.")
-        return
-
-    # 1. Define API URL and headers
-    url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FILE_PATH}"
-    headers = {
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-
-    # 2. Get the current file to get its SHA hash
-    # This is required for updating an existing file
-    sha = None
-    try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status() # Raise an exception for bad status codes (4xx or 5xx)
-        # If the file exists, get its SHA
-        sha = response.json()['sha']
-    except requests.exceptions.HTTPError as err:
-        if err.response.status_code == 404:
-            print(f"File '{FILE_PATH}' not found. A new file will be created.")
-            sha = None # Ensure sha is None if file doesn't exist
-        else:
-            print(f"Error getting file from GitHub: {err}")
-            return
-            
-    # 3. Prepare the data for upload
-    # Convert your Python dictionary to a JSON string
-    content_json_string = json.dumps(data_to_upload, indent=2)
-    # GitHub API requires content to be Base64 encoded
-    content_base64 = base64.b64encode(content_json_string.encode('utf-8')).decode('utf-8')
-
-    # 4. Create the JSON payload for the API request
-    payload = {
-        "message": "Update scores data",  # Your commit message
-        "content": content_base64,
-        "committer": {
-            "name": os.environ.get("PERSONAL_NAME"),
-            "email": os.environ.get("PERSONAL_EMAIL")
-        }
-    }
-    # If we are updating an existing file, we must include its SHA
-    if sha:
-        payload['sha'] = sha
-
-    # 5. Make the PUT request to create or update the file
-    try:
-        response = requests.put(url, headers=headers, data=json.dumps(payload))
-        response.raise_for_status()
-        print(f"Successfully uploaded new version of '{FILE_PATH}' to GitHub.")
-        #print(f"Commit SHA: {response.json()['commit']['sha']}")
-    except requests.exceptions.HTTPError as err:
-        print(f"Error uploading file to GitHub: {err}")
-        print(f"Response body: {err.response.text}")       
+    print("Successfully updated scores_json")
+  

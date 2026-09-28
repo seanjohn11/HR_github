@@ -1,5 +1,4 @@
 requests
-pandas
 python-dateutil
 flask
 upstash-redis

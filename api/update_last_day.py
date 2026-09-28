@@ -273,7 +273,7 @@ def update_last_day():
         kv_token = os.environ.get("KV_REST_API_TOKEN")
         redis = Redis(url=kv_url, token=kv_token)
         
-        after_time = int(time.time()) - 86400
+        after_time = int(time.time()) - (15*86400)
         
         athlete_iterator = 1
         for athlete_id, user_creds in users.items():

@@ -340,7 +340,17 @@
             if (leaderboardData.length === 0) return;
 
             // Get headers from the first person's last_7 object, filtering out 'PTO remaining' for the header row
-            const headers = Object.keys(leaderboardData[0].last_7).filter(key => key !== 'PTO remaining');
+            const headers = Object.keys(leaderboardData[0].last_7)
+            .filter(key => key !== 'PTO remaining')
+            .sort((a, b) => {
+                const dateA = a.match(/\((\d{2}\/\d{2})\)/)[1];
+                const dateB = b.match(/\((\d{2}\/\d{2})\)/)[1];
+        
+                const [monthA, dayA] = dateA.split('/').map(Number);
+                const [monthB, dayB] = dateB.split('/').map(Number);
+        
+                return monthA - monthB || dayA - dayB;
+            });
             
             let table = `
                 <div class="overflow-x-auto">
